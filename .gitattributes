@@ -1,0 +1,12 @@
+# Force these as binary regardless of core.autocrlf, on every machine that
+# clones/checks out this repo (including GitHub Actions' runner, which is
+# what actually builds and deploys this site) — git's own binary-detection
+# heuristic is usually right, but "usually" isn't good enough for a resume
+# PDF or certificate images that must render byte-for-byte correctly.
+*.pdf binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.ico binary
+*.woff binary
+*.woff2 binary

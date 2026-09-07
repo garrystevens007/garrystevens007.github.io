@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* Exact Material Dashboard values: page canvas is --bs-gray-100 (#f5f5f5),
+     not pure white — cards sit on top of it in white. */
+  @apply bg-neutral-100 text-neutral-500 dark:bg-neutral-900 dark:text-neutral-300;
+}
+
+/* Used by the API Playground (agentsmd/DESIGN_SPECS.md "Animations &
+   Transitions") — Tailwind doesn't generate arbitrary named keyframes on its
+   own, so these are defined here and applied via plain utility classes. */
+@keyframes progress {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 80%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-progress {
+  animation: progress 2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.3s ease-out;
+}

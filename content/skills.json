@@ -1,0 +1,50 @@
+[
+  {
+    "category": "Languages",
+    "accent": "primary",
+    "skills": [
+      { "name": "Java", "level": 90 },
+      { "name": "SQL", "level": 85 }
+    ]
+  },
+  {
+    "category": "Frameworks & Architecture",
+    "accent": "info",
+    "skills": [
+      { "name": "RESTful APIs", "level": 90 },
+      { "name": "MVC Pattern", "level": 85 },
+      { "name": "Java EE", "level": 80 },
+      { "name": "Spring", "level": 60 }
+    ]
+  },
+  {
+    "category": "Databases & Search",
+    "accent": "success",
+    "skills": [
+      { "name": "MySQL", "level": 80 },
+      { "name": "PostgreSQL", "level": 75 },
+      { "name": "Elasticsearch", "level": 70 }
+    ]
+  },
+  {
+    "category": "Testing & Code Quality",
+    "accent": "warning",
+    "skills": [
+      { "name": "JUnit", "level": 80 },
+      { "name": "Mockito", "level": 75 },
+      { "name": "SonarQube", "level": 75 }
+    ]
+  },
+  {
+    "category": "Tools & DevOps",
+    "accent": "danger",
+    "skills": [
+      { "name": "Git", "level": 85 },
+      { "name": "Maven", "level": 80 },
+      { "name": "Docker", "level": 75 },
+      { "name": "Jenkins", "level": 70 },
+      { "name": "Azure DevOps", "level": 70 },
+      { "name": "WildFly", "level": 65 }
+    ]
+  }
+]

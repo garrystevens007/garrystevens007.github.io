@@ -1,0 +1,43 @@
+[
+  {
+    "id": "coursera-pm",
+    "title": "Foundations of Project Management",
+    "issuer": "Google · via Coursera",
+    "date": "Aug 2025",
+    "kind": "certificate",
+    "accent": "info",
+    "image": "/certificates/coursera-foundations-of-project-management.jpg",
+    "verifyUrl": "https://coursera.org/verify/6SVBPK47QAZN",
+    "credentialId": "6SVBPK47QAZN"
+  },
+  {
+    "id": "ef-set",
+    "title": "EF SET English Certificate",
+    "issuer": "EF Standard English Test",
+    "date": "Feb 2026",
+    "kind": "certificate",
+    "accent": "success",
+    "image": "/certificates/ef-set-english-certificate.jpg",
+    "verifyUrl": "https://cert.efset.org/rD3zXM",
+    "meta": "B2 Upper Intermediate · 60/100"
+  },
+  {
+    "id": "ccc-coach",
+    "title": "Certified Course-Net Coach (CCC)",
+    "issuer": "Course-Net Indonesia",
+    "date": "Jul 2021",
+    "kind": "certificate",
+    "accent": "danger",
+    "image": "/certificates/ccc-certified-coursenet-coach.jpg",
+    "credentialId": "2021/SA/ADVCNAPPS-02/4748"
+  },
+  {
+    "id": "acm-publication",
+    "title": "Legal Protection of Copyright on Copyrighted Content Downloaded Through the Internet",
+    "issuer": "Association for Computing Machinery (ACM)",
+    "date": "Feb 2020",
+    "kind": "publication",
+    "accent": "primary",
+    "verifyUrl": "https://dl.acm.org/doi/10.1145/3385209.3385228"
+  }
+]

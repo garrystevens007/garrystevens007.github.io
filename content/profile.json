@@ -1,0 +1,27 @@
+{
+  "name": "Garry Stevens",
+  "title": "Backend Engineer",
+  "location": "South Jakarta, Indonesia",
+  "email": "stevens.garrys@gmail.com",
+  "availability": "Open to opportunities",
+  "summary": "Backend Engineer with hands-on experience building and maintaining enterprise-grade Java applications. Experienced in designing RESTful services, working with relational databases, and improving system reliability in production environments. Strong focus on data integrity, performance optimization, and writing maintainable, testable code. Comfortable working in distributed teams and owning features end-to-end.",
+  "nationality": "Indonesian",
+  "spokenLanguages": ["English", "Indonesian"],
+  "areasOfExpertise": [
+    "Enterprise Backend Development",
+    "REST API Design & System Integration",
+    "Application Security & Secure Coding",
+    "Legacy System Modernization",
+    "SQL Query Optimization",
+    "Elasticsearch Indexing & Relevance Tuning",
+    "Code Quality & Static Analysis",
+    "Feature Prioritization & Technical Feasibility Assessment"
+  ],
+  "resumeUrl": "/resume/Garry-Stevens-Resume.pdf",
+  "socials": {
+    "githubHandle": "@garrystevens007",
+    "github": "https://github.com/garrystevens007",
+    "linkedin": "https://www.linkedin.com/in/garstev",
+    "linkedinCertifications": "https://www.linkedin.com/in/garstev/details/certifications/"
+  }
+}

@@ -1,0 +1,47 @@
+[
+  {
+    "role": "Software Engineer",
+    "company": "Unit4",
+    "location": "United Kingdom, Remote",
+    "start": "2023-05-01",
+    "end": null,
+    "period": "May 2023 — Present",
+    "bullets": [
+      "Identified and remediated a critical security vulnerability where user passwords were stored in plaintext, implementing secure encryption and safe handling across API and database layers.",
+      "Refactored authentication-related components to align with secure coding standards, strengthening overall system security posture.",
+      "Developed and maintained enterprise REST APIs in Java for ERP modules, delivering backend enhancements end-to-end while ensuring backward compatibility.",
+      "Investigated and resolved production incidents across business-critical systems, performing root-cause analysis to prevent recurrence.",
+      "Investigated and optimized SQL queries to improve performance of data-intensive workflows.",
+      "Improved code maintainability and reliability by addressing SonarQube findings and strengthening unit test coverage (JUnit, Mockito).",
+      "Contributed to CI/CD workflows using Jenkins and Azure DevOps; applications deployed on WildFly."
+    ]
+  },
+  {
+    "role": "Software Engineer",
+    "company": "Samsung Research Indonesia",
+    "location": "Jakarta, Hybrid",
+    "start": "2022-02-01",
+    "end": "2023-04-30",
+    "period": "Feb 2022 — Apr 2023",
+    "bullets": [
+      "Designed and developed an internal web platform to support AI training workflows, building ~10 RESTful API endpoints from scratch using Java (MVC pattern) and structured DTO layers.",
+      "Modeled database interactions and implemented backend logic to support seamless collaboration with frontend engineers.",
+      "Implemented and fine-tuned Elasticsearch indexing and relevance scoring to improve search accuracy and data retrieval performance.",
+      "Containerized services using Docker to ensure consistent development environments.",
+      "Improved code maintainability by addressing static analysis findings (cognitive complexity and code smells).",
+      "Worked in an Agile environment using Jira and Kanban for iterative delivery."
+    ]
+  },
+  {
+    "role": "Academy Instructor",
+    "company": "Course-Net Indonesia",
+    "location": "Jakarta, Hybrid",
+    "start": "2019-02-01",
+    "end": "2022-01-31",
+    "period": "Feb 2019 — Jan 2022",
+    "bullets": [
+      "Delivered Java programming training to 500+ students as part of Indonesia's national upskilling program.",
+      "Designed structured curriculum and hands-on projects to improve job readiness."
+    ]
+  }
+]
