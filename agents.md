@@ -60,7 +60,7 @@ content/
 ├── experience.json       # array of roles, newest-should-be-first (displayed in array order)
 ├── skills.json            # array of {category, accent, skills:[{name, level}]}
 ├── certifications.json    # array of certs/publications — see Certifications below for scope
-└── site-meta.json          # the ONLY two purely-manual facts: careerStartDate, linesOfCodeWritten
+└── site-meta.json          # the ONLY two purely-manual facts: backendExperienceStartDate, linesOfCodeWritten
 ```
 
 **Design decisions worth knowing before changing this**:
@@ -129,9 +129,16 @@ Top navbar shows the active section name and a light/dark theme toggle (persiste
 Four cards, values computed from `lib/data.ts`, not hand-typed:
 
 - **"30,000+ Lines of Code Written"** — static, manually-updated figure (no LOC tracker wired up).
-- **"7+ Years of Experience"** — computed from a `careerStartDate` constant (Feb 2019, per the
-  resume's Course-Net Academy Instructor start) to the current date. Redeploying refreshes it
-  automatically.
+- **"4+ Years of Experience"** — computed from `content/site-meta.json`'s
+  `backendExperienceStartDate` (Feb 2022, Samsung Research start) to the current date, so it stays
+  accurate without ever needing a manual bump — redeploying refreshes it automatically. This
+  originally computed from Feb 2019 (the Course-Net Academy Instructor start), giving "7+" — but
+  that didn't match the resume's own framing ("Backend Engineer with 4+ years of experience..."),
+  which counts only the backend-engineering roles (Samsung + Unit4), not the earlier instructor
+  role. Changed to match, on request, since the mismatch between the live site and the downloadable
+  resume was the actual problem — not the specific number. The instructor years are still shown in
+  full in the Experience section and the tenure chart; they're just excluded from this one
+  headline figure, same as the resume itself does.
 - **"18+ Technologies & Tools"** — `Object.values(skills).length` across all categories.
 - **"4 Certifications Earned"** — `certifications.length` (3 certs + 1 publication).
 

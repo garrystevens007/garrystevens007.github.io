@@ -92,7 +92,7 @@ export type Certification = {
 };
 
 interface SiteMetaData {
-  careerStartDate: string;
+  backendExperienceStartDate: string;
   linesOfCodeWritten: string;
 }
 
@@ -138,7 +138,13 @@ const certificationsData: Certification[] = certificationsJson.map((c) => ({
 
 const siteMeta: SiteMetaData = siteMetaJson;
 
-export const careerStartDate = siteMeta.careerStartDate;
+// Anchored to the start of backend-engineering roles specifically (Samsung
+// Research, Feb 2022) — not the earlier Course-Net instructor role — to
+// match how the resume itself frames it ("Backend Engineer with 4+ years of
+// experience..."). The instructor years are still shown in full in the
+// Experience section and the tenure chart; they're just not counted toward
+// this specific headline figure, same as the resume's own framing.
+export const backendExperienceStartDate = siteMeta.backendExperienceStartDate;
 
 function yearsSince(dateString: string): number {
   const start = new Date(dateString);
@@ -157,8 +163,10 @@ function yearsBetween(startDate: string, endDate: string | null): number {
   return (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
 }
 
-// Computed at build time from careerStartDate — redeploying refreshes it.
-export const yearsOfExperience = yearsSince(careerStartDate);
+// Computed at build time from backendExperienceStartDate — redeploying
+// refreshes it, so this stays accurate without ever needing a manual edit
+// (unlike the static resume PDF, which is a snapshot and won't self-update).
+export const yearsOfExperience = yearsSince(backendExperienceStartDate);
 
 export const profile = profileData;
 export const socials = profileData.socials;
