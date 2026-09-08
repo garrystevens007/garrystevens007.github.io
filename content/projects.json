@@ -1,0 +1,43 @@
+[
+  {
+    "id": "credential-security-remediation",
+    "name": "Credential Security Remediation",
+    "description": "Found and fixed a critical vulnerability where user passwords were persisted in plaintext, then hardened the surrounding auth path across the API and database layers.",
+    "techStack": ["Java", "Java EE", "SQL", "JUnit"],
+    "impact": "Removed plaintext credential storage from a production ERP system",
+    "company": "Unit4"
+  },
+  {
+    "id": "ai-training-platform",
+    "name": "AI Training Workflow Platform",
+    "description": "Internal web platform supporting AI training workflows — roughly 10 REST endpoints built from scratch with a Java MVC structure and DTO layers, plus tuned Elasticsearch indexing and relevance scoring.",
+    "techStack": ["Java", "MVC Pattern", "Elasticsearch", "Docker", "MySQL"],
+    "impact": "Improved search accuracy and retrieval performance for training data",
+    "company": "Samsung Research Indonesia"
+  },
+  {
+    "id": "erp-rest-modules",
+    "name": "Enterprise ERP REST Modules",
+    "description": "Enterprise REST APIs for ERP modules delivered end-to-end while preserving backward compatibility, alongside SQL query optimisation and SonarQube-driven quality work.",
+    "techStack": ["Java", "RESTful APIs", "PostgreSQL", "SonarQube", "Jenkins", "WildFly"],
+    "impact": "Faster data-intensive workflows and higher unit-test coverage",
+    "company": "Unit4"
+  },
+  {
+    "id": "portfolio-dashboard",
+    "name": "This Portfolio Dashboard",
+    "description": "Role-aware portfolio built as an admin dashboard — three tailored dashboards, a mock API playground with a gamification layer, and a JSON-driven content architecture, statically exported to GitHub Pages.",
+    "techStack": ["Next.js", "TypeScript", "Tailwind CSS", "Recharts"],
+    "impact": "Fully static, zero-backend, redeploys from a JSON edit",
+    "github": "https://github.com/garrystevens007/garry.github.io",
+    "live": "https://garrystevens007.github.io"
+  },
+  {
+    "id": "acm-publication",
+    "name": "ACM Publication",
+    "description": "Peer-reviewed paper published in the ACM Digital Library.",
+    "techStack": ["Research", "Publication"],
+    "impact": "Published in the ACM Digital Library",
+    "live": "https://dl.acm.org/doi/10.1145/3385209.3385228"
+  }
+]

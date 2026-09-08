@@ -103,7 +103,120 @@ content/
 
 # Site Structure
 
-Single dashboard page ([app/page.tsx](app/page.tsx)) — a fixed sidebar + sticky navbar shell
+## Routes (role system — agentsmd/v2/)
+
+| Route | What it is |
+| --- | --- |
+| `/` | Client-side redirect: to `/dashboard/{stored role}`, else `/roles`. Shows `RedirectSplash` for the frame it takes. |
+| `/roles` | Role picker — "Who am I?", three glassmorphic cards (HR / Technical User / Manager–Director), staggered entrance, liquid-morphing icons. |
+| `/dashboard` | Same redirect logic as `/`. |
+| `/dashboard/hr` | Recruitment-focused: profile + contact strip, skills browser (category/search/sort), filterable experience timeline, metrics, education + certifications, CV downloads. |
+| `/dashboard/technical` | Dark, gamified: achievement badges, leaderboard stats, the API Playground with points/combos/secret endpoints, skills showcase, projects. |
+| `/dashboard/manager` | Executive: 8 KPI cards, 4 Recharts panels, career timeline with per-company metrics, proficiency matrix, company breakdown, exports. |
+| `/portfolio` | **The original single-page portfolio, unchanged.** It used to live at `/`; the role system is an addition, not a replacement. Linked from the picker footer and every dashboard sidebar. |
+| 404 | `app/not-found.tsx` → `out/404.html`, which GitHub Pages serves for unmatched paths. |
+
+Role state lives in [context/RoleContext.tsx](context/RoleContext.tsx), persisted to
+`localStorage.selectedRole` **via [lib/local-storage-store.ts](lib/local-storage-store.ts)**, not a
+mount `useEffect` — see "This is NOT the Next.js you know". Every dashboard shares
+[components/layout/RoleShell.tsx](components/layout/RoleShell.tsx) (sidebar + mobile drawer +
+scroll-spy) and its "Change Role" button.
+
+`next.config.mjs` gained `trailingSlash: true` so each route exports as `<route>/index.html` —
+GitHub Pages then serves both `/roles` and `/roles/`.
+
+### Per-role palettes (don't flatten these back into one theme)
+
+The three dashboards are deliberately three different surfaces. Tokens live under their own
+namespaces in [tailwind.config.ts](tailwind.config.ts) (`hr.*`, `luxe.*`) so Tailwind's stock
+`teal`/`amber` scales stay untouched, and `RoleShell`'s `ShellVariant` (`warm` | `dark` | `luxe`)
+selects between them.
+
+| | HR (`warm`) | Technical (`dark`) | Executive (`luxe`) |
+| --- | --- | --- | --- |
+| Canvas | `#F7F3EE` warm sand | `#111827` → `#1F2937` | `#0A0A0C` near-black |
+| Card | `#FFFDFA` | `#1F2937` | `#16161A` |
+| Accent | `#0F766E` deep teal | `#e91e63` pink + neon | `#D4AF37` champagne gold |
+| Headings | Inter | Inter | **Playfair Display** (`font-display`) |
+| Feel | approachable, calm | energetic, gamified | boardroom |
+
+Why these, specifically:
+
+- **HR is warm-neutral, not white.** The 2025/26 move in HR/recruiting UI is explicitly away from
+  cold corporate white toward warm neutrals (`#F5F0EB`–`#E8E0D5`), which read as human rather than
+  transactional. The old `bg-gray-50` + white cards was the thing making the page feel like an
+  admin template. Teal rather than blue because generic SaaS blue has gone invisible — teal keeps
+  the trust signal without the sameness.
+- **Executive is the only place a dark surface reads as authority rather than "developer tool".**
+  Gold is the single accent; the supporting chart series (ice `#8FB8C9`, rose `#C08497`, sage
+  `#8A9A7B`) are deliberately desaturated so gold stays the hero.
+- **Warm-tinted shadows** (`shadow-warm`) on HR: a neutral grey shadow over a sand canvas reads as
+  dirt. On the dark surfaces, elevation comes from an inset top highlight (`shadow-luxe`) because a
+  drop shadow on near-black is invisible.
+- **Executive print styles invert the whole surface** (`.print-light` in globals.css). A near-black
+  page printed as-is empties a cartridge, and browsers default `print-color-adjust` to `economy` —
+  which would strip the dark background and leave bone-white text on white paper. The overrides are
+  targeted rather than a blanket `* { color: #111 }` so chart fills survive; the proficiency
+  heatmap's inline cell colours are handled via a `data-filled` hook, since an unfilled near-black
+  cell would otherwise print as a solid block and invert the chart's meaning.
+
+### Canvas / blur performance rules (learned the hard way, don't regress these)
+
+Three separate stutter bugs traced to the same class of mistake — an expensive
+per-frame raster operation applied at scale. Measured, not guessed:
+
+| Cause | Cost | Fix |
+| --- | --- | --- |
+| `ctx.shadowBlur` set for the whole dark-mode draw pass in `ParticleBackground` | 60fps → **35fps** in dark mode only | Glow is now a second larger low-alpha fill per dot. No canvas shadow anywhere except the single cursor node. |
+| `backdrop-blur-xl` on the picker's three cards, over a canvas repainting every frame | **−15fps** | `backdrop-blur-md`. At these card sizes 12px is indistinguishable from 24px. |
+| Picker's `blur-3xl` blobs animated with `scale()` | **−11fps** | Deleted. Scaling a 64px-blur layer re-rasterises the blur every frame; replaced with static CSS radial gradients. |
+| Flow field rendered at 2× device pixels | 26fps → 35fps | `RENDER_SCALE = 1`. Soft ribbons survive upscaling; 4× less fill. |
+
+Also: connection lines in both canvases are grouped into a handful of
+alpha/hue buckets and each bucket is stroked as **one** path — thousands of
+`stroke()` calls per frame collapse to ~6 (network) / ~24 (flow field). The
+O(n²) neighbour loop uses squared-distance comparison with a cheap axis
+rejection, never `Math.hypot`. And `visibilitychange` handlers guard on
+`!running` before starting a new rAF loop — without it, a repeated
+visible-state event starts a second loop and doubles it every time.
+
+The role picker's background is `components/roles/FlowFieldBackground.tsx` — a
+flow field, deliberately a *different* effect from the portfolio's particle
+network so the two pages don't read as one idea reused. Hovering (or
+keyboard-focusing) a role card lerps every particle's hue toward that
+dashboard's accent (teal / pink / gold), so the background previews the choice.
+
+### Deliberate deviations from the v2 specs
+
+- **No phone number**, anywhere. `HR_DASHBOARD_SPECS.md` has a Phone contact card; the standing
+  privacy decision wins. Location fills the fourth slot.
+- **Career duration is computed (4+), not the spec's hardcoded 7+** — the spec predates that
+  correction and would contradict both the resume and the rest of the site.
+- **No `middleware.ts`, no `npm run start`** — incompatible with `output: "export"`. All routing is
+  client-side.
+- **Filtered CV exports are generated in the browser as Markdown.** The spec has them POST filter
+  params to `scripts/build_resume.py`; there is no server. The *full* CV button still serves the
+  real pre-built PDF. Manager "Export to PDF" is `window.print()` behind a print stylesheet.
+- **`setSelectedRole` does not navigate.** `ROLE_NAVIGATION.md` gives it a redirect side effect
+  while `ROLE_PICKER_PAGE.md`'s handler calls it *and* pushes after a 600ms animation — together
+  that's a double navigation. Split into `setSelectedRole` (pure) + `selectRoleAndGo`.
+- **Scoring formula rewritten.** `TECHNICAL_DASHBOARD_SPECS.md` §3.6 multiplies by the raw combo
+  *and* adds `combo × 50`, while the `getComboBonus()` right below it defines a flat +100 every 3rd
+  request. As written, a 10-streak on a hard DELETE pays 1500 points in one click. Kept every
+  ingredient, capped the combo multiplier at 5×, used the flat +100.
+- **SVG gauges use the full circumference.** The spec's `Math.PI * 100` is half of `2πr`, so a
+  99.8% arc would draw as just over half the ring.
+- **Proficiency heatmap rebuilt as a gold ramp.** The spec's amber→red scale assigned rose-200 to
+  both level 2 and level 3 (indistinguishable), and an alert palette on near-black reads as errors
+  rather than expertise. Replaced with a monotonic single-hue gold intensity ramp.
+- **Certifications added to the HR dashboard** (not in the spec) — recruiters ask for them and the
+  data already exists.
+- **Per-company delivery metrics dropped.** The spec's Career Timeline and Experience Overview both
+  show features/bugs/reviews per employer; see Known Placeholders for why that was removed.
+
+## The classic portfolio page
+
+Single dashboard page ([app/portfolio/page.tsx](app/portfolio/page.tsx)) — a fixed sidebar + sticky navbar shell
 ([components/layout/DashboardShell.tsx](components/layout/DashboardShell.tsx)) wrapping stacked
 sections, each with an anchor id the sidebar scrolls to (with scroll-spy active-link highlighting
 via `IntersectionObserver`):
@@ -316,6 +429,9 @@ a gap to fill from local files.
 
 - **Phone number**: present in the source resume, deliberately **excluded** from the public site
   (Contact section shows email + LinkedIn + location only) — and from the downloadable resume too.
+  This survived the v2 role system: `agentsmd/v2/HR_DASHBOARD_SPECS.md` specifies a Phone contact
+  card on `/dashboard/hr`, and it was **not** built. The HR contact strip is Email / LinkedIn /
+  GitHub / Location. If a future spec asks for a phone card again, this decision still stands.
 - **Resume PDF download**: the original resume PDF (`E:\CV\ATS_Garry_Stevens.pdf`, same as
   `resource/`) has the phone number embedded in it, so it's never published directly. Instead,
   [scripts/build_resume.py](scripts/build_resume.py) regenerates a clean PDF from the resume's own
@@ -334,7 +450,27 @@ a gap to fill from local files.
       API idea (`https://api.github.com/users/garrystevens007/repos`) is still open if real
       projects/repos get added as their own thing later.
 - [ ] **Real profile photo** — currently a "GS" initials avatar (no image asset needed/used).
-- [ ] Skill proficiency percentages in `lib/data.ts` are self-rated placeholders — adjust freely.
+- [ ] Skill proficiency percentages in `content/skills.json` are self-rated placeholders — adjust freely.
+- [ ] **`content/metrics.json`** originally carried the API Playground's *deliberately fictional*
+      mock `/api/stats` numbers straight onto the recruiter- and manager-facing dashboards. Several
+      have since been revised by hand. Every section that shows them also renders
+      `metrics.disclaimer` ("Self-reported estimates across roles, not audited figures.") so nothing
+      is stated as audited fact — keep that rendering in place. Still worth a pass: `linesOfCode`
+      (30,000) and `productionUptime` (99.8%) are the two untouched originals.
+- [ ] **`featuresPerYear` no longer sums to `featuresShipped`** (32 vs 47). The Executive Summary
+      card reads `featuresShipped`; the Delivery Velocity chart headline sums `featuresPerYear`, so
+      the same page currently shows two different totals. Reconcile whichever is right.
+- **No per-company metrics** — removed deliberately. Splitting invented totals across named
+      employers ("98 bugs at Unit4") reads as a specific, checkable claim about work done for a real
+      company, which is a much stronger assertion than a career-wide self-reported estimate. Don't
+      reintroduce a `byCompany` block. The Experience Overview section now visualises tenure share
+      and location distribution instead, all computed from `content/experience.json`.
+- [ ] **`since` dates in `content/skills.json`** are estimates inferred from the career timeline
+      (Java/Git → Feb 2019, backend stack → Feb 2022, Unit4-only tooling → May 2023). They drive
+      the "Ny experience" chips on all three dashboards — correct any that are wrong.
+- [ ] **`type: "full-time"` on all three roles** in `content/experience.json` — assumed, including
+      for the Course-Net instructor role. Change if inaccurate.
+- [ ] `content/projects.json` descriptions are derived from the resume bullets — worth a read-through.
 
 # Deployment
 
@@ -383,7 +519,8 @@ and the resume link all work identically. **GitHub Pages is viable for this app 
 
 ## Local commands
 
-`npm install`, `npm run dev` (localhost:3000), `npm run build` (now produces `out/` per the export
+`npm install`, `npm run dev` (localhost:3000 — lands on the role picker on a first visit, or your
+last-picked dashboard after that; `/portfolio` for the classic page), `npm run build` (now produces `out/` per the export
 config above) + `npm run start` — note `next start` does **not** work against an `output: "export"`
 build the normal way; to preview the exported static site locally, serve `out/` directly instead
 (e.g. `npx serve out`). `npm run lint`.
@@ -393,25 +530,45 @@ build the normal way; to preview the exported static site locally, serve `out/` 
 ```
 /
 ├── app/
-│   ├── layout.tsx       # fonts, metadata, no-flash theme script
-│   ├── page.tsx          # composes DashboardShell + all sections
+│   ├── layout.tsx       # fonts, metadata, no-flash theme script, RoleProvider
+│   ├── page.tsx          # redirect: stored role → its dashboard, else /roles
+│   ├── not-found.tsx      # → out/404.html
+│   ├── roles/page.tsx      # role picker
+│   ├── dashboard/          # page.tsx (redirect) + hr/ + technical/ + manager/
+│   ├── portfolio/page.tsx   # the original single-page portfolio, unchanged
 │   ├── globals.css
 │   └── icon.svg           # favicon (Next.js metadata file convention)
 ├── components/
-│   ├── layout/            # DashboardShell, Sidebar, Navbar, ThemeToggle, ParticleBackground
+│   ├── layout/            # DashboardShell, Sidebar, Navbar, ThemeToggle, ParticleBackground,
+│   │                      #   RoleShell, RoleSidebar, RedirectSplash
+│   ├── roles/             # RolePicker (glassmorphic "Who am I?" cards)
+│   ├── dashboards/
+│   │   ├── hr/            # ProfileCard, SkillsBrowser, ExperienceTimeline, AchievementsMetrics,
+│   │   │                  #   EducationCard, DownloadSection
+│   │   ├── technical/     # AchievementDashboard, LeaderboardStats, GameHud,
+│   │   │                  #   GamifiedApiPlayground, SkillsShowcase, ProjectsHighlight
+│   │   └── manager/       # ExecutiveSummary, KPIDashboard, CareerTimeline,
+│   │                      #   ProficiencyMatrix, ExperienceOverview, ExportSection
 │   ├── dashboard/         # SectionHeading, StatCard, SkillsChart, TenureChart
 │   ├── sections/          # Overview, About, Experience, Skills, Certifications, Contact
 │   ├── api-playground/    # ApiPlayground + 14 sub-components (Postman-style mock API explorer)
 │   └── icons.tsx           # GitHub/LinkedIn brand SVGs (lucide-react v1 dropped these)
+├── context/
+│   ├── RoleContext.tsx     # selected role + persistence + Change Role navigation
+│   └── GameContext.tsx     # session-only points/combo/secret-unlock state (technical only)
 ├── content/                  # EDIT HERE for real content — see Content Architecture above
 │   ├── profile.json
 │   ├── education.json
-│   ├── experience.json
-│   ├── skills.json
+│   ├── experience.json       # + type / summary / skills per role (role dashboards)
+│   ├── skills.json           # + since per skill (drives years-of-experience)
 │   ├── certifications.json
+│   ├── metrics.json          # ⚠ unverified figures — see Known Placeholders
+│   ├── projects.json
 │   └── site-meta.json
 ├── lib/
 │   ├── data.ts               # imports content/*.json, validates it, derives every UI export
+│   ├── roles.ts              # UserRole type + per-role config (titles, icons, hrefs)
+│   ├── role-utils.ts         # date/duration formatting, filters, CSV + file-download helpers
 │   └── local-storage-store.ts # useSyncExternalStore-backed localStorage helper
 ├── public/
 │   ├── resume/             # regenerated, phone-number-free resume PDF (the actual download)

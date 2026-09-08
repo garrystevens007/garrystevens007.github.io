@@ -58,3 +58,209 @@ body {
 .animate-slide-in-up {
   animation: slideInUp 0.3s ease-out;
 }
+
+/* --------------------------------------------------------------------------
+   Role system (agentsmd/v2/ROLE_PICKER_PAGE.md)
+
+   Named distinctly from .animate-fade-in above on purpose: that one is the
+   API Playground's 0.3s ease-in with no fill-mode, and the picker needs a
+   0.6s entrance that STAYS applied (forwards) and starts invisible, so the
+   staggered delays don't flash all three cards before animating them.
+   -------------------------------------------------------------------------- */
+@keyframes enterFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes enterUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-enter-fade,
+.animate-enter-up {
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+}
+
+.animate-enter-fade {
+  animation-name: enterFade;
+  animation-duration: 0.6s;
+}
+
+.animate-enter-up {
+  animation-name: enterUp;
+  animation-duration: 0.5s;
+}
+
+/* Liquid morphing for the picker icons — a slow squash/stretch that reads as
+   surface tension rather than a bounce. Runs continuously at low amplitude,
+   and the card's :hover speeds it up (see .role-card:hover below). */
+@keyframes liquidMorph {
+  0%,
+  100% {
+    transform: scaleX(1) scaleY(1);
+    border-radius: 42% 58% 47% 53% / 52% 44% 56% 48%;
+  }
+  25% {
+    transform: scaleX(1.08) scaleY(0.93);
+    border-radius: 58% 42% 55% 45% / 44% 56% 44% 56%;
+  }
+  50% {
+    transform: scaleX(0.93) scaleY(1.08);
+    border-radius: 46% 54% 41% 59% / 57% 47% 53% 43%;
+  }
+  75% {
+    transform: scaleX(1.06) scaleY(0.95);
+    border-radius: 55% 45% 58% 42% / 43% 55% 45% 57%;
+  }
+}
+
+.animate-liquid {
+  animation: liquidMorph 7s ease-in-out infinite;
+}
+
+.role-card:hover .animate-liquid,
+.role-card:focus-visible .animate-liquid {
+  animation-duration: 2.4s;
+}
+
+/* (The picker's animated `blur-3xl` blobs and their floatBlob keyframes lived
+   here. They were removed once the flow field replaced them: animating
+   `scale()` on a heavily-blurred layer forces the blur to be re-rasterised
+   every frame, which measured ~11fps of the picker's frame budget.) */
+
+/* Score ticker / badge pop, used by the technical dashboard. */
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  70% {
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Every animation above is decorative. Honour the OS setting globally rather
+   than per-component so nothing new can slip through unguarded. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The manager dashboard's "Export to PDF" is the browser's own print-to-PDF
+   (a static export has no server to render one) — this makes the printed
+   page look deliberate: no sidebar, no buttons, charts unclipped. */
+@media print {
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Page margins belong to @page, not to element padding — that way the
+     margin repeats on every printed sheet instead of only the first. */
+  @page {
+    margin: 14mm;
+  }
+
+  .print-full {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  /* The executive dashboard is near-black on screen. Printed as-is it would
+     empty an ink cartridge — and most browsers strip dark backgrounds anyway
+     (print-color-adjust defaults to "economy"), which would leave bone-white
+     text on white paper. So the luxe surface is explicitly inverted for print
+     rather than left to the browser to mangle.
+
+     Deliberately targeted rather than a blanket `* { color: #111 }`: the
+     charts carry meaning in their fills, and a blanket rule would also flatten
+     the proficiency heatmap's inline background colours into nothing. */
+  /* `.print-light` is on the same element as `.bg-luxe-canvas`, so it has to
+     be matched with a compound selector as well as a descendant one — a
+     descendant selector alone leaves the page canvas black and every
+     inverted-to-dark heading on it invisible. */
+  .print-light,
+  .print-light .bg-luxe-canvas,
+  .print-light .bg-luxe-canvas-2,
+  .print-light .bg-luxe-card,
+  .print-light .bg-luxe-card-2,
+  .print-light .bg-luxe-hairline,
+  .print-light .bg-luxe-gold-tint {
+    background-color: #fff !important;
+    background-image: none !important;
+  }
+
+  /* The card grid relies on a hairline-coloured backdrop showing through 1px
+     gaps; once every surface is white that separation is gone, so the cells
+     get real borders back for print. */
+  .print-light .gap-px > * {
+    border: 1px solid #e4e4e4 !important;
+  }
+
+  .print-light .text-luxe-ink,
+  .print-light .text-luxe-ink-soft {
+    color: #111 !important;
+  }
+
+  .print-light .text-luxe-muted {
+    color: #555 !important;
+  }
+
+  /* Champagne gold is unreadable on white — drop to the deep gold, which
+     still reads as the same accent but passes contrast on paper. */
+  .print-light .text-luxe-gold {
+    color: #7a6416 !important;
+  }
+
+  .print-light [class*="border-luxe"] {
+    border-color: #dcdcdc !important;
+  }
+
+  .print-light .shadow-luxe,
+  .print-light .shadow-luxe-lg,
+  .print-light .shadow-gold {
+    box-shadow: none !important;
+  }
+
+  /* Heatmap cells set their colour inline, so the "empty" state would print as
+     a near-black block and invert the whole chart's meaning. A stylesheet
+     !important still beats an inline style, which is what makes this work. */
+  .print-light [data-filled="false"] {
+    background-color: #ececec !important;
+  }
+}
