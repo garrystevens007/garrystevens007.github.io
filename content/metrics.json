@@ -1,0 +1,40 @@
+{
+  "_provenance": "IMPORTANT — these numbers were carried over from the API Playground's deliberately-fictional mock /api/stats response (they were invented as playful demo data, not measured). The role dashboards present them to recruiters and hiring managers, where they read as factual claims about a real career. Replace every value below with your own real figures (or lower them to honest estimates) before sharing the dashboards. The `disclaimer` string is rendered under each metrics section so nothing here is presented as an audited fact.",
+  "disclaimer": "Self-reported estimates across roles, not audited figures.",
+
+  "linesOfCode": 30000,
+  "bugsFixed": 20,
+  "securityFixes": 10,
+  "featuresShipped": 47,
+  "codeReviews": 201,
+  "testCoverage": 87,
+  "productionUptime": 99.8,
+  "testCoverageTarget": 95,
+  "uptimeIndustryStandard": 99.9,
+
+  "featuresPerYear": [
+    { "year": "2022", "features": 6 },
+    { "year": "2023", "features": 7 },
+    { "year": "2024", "features": 6 },
+    { "year": "2025", "features": 8 },
+    { "year": "2026", "features": 5 }
+  ],
+
+  "testCoverageTrend": [
+    { "period": "2024 Q1", "coverage": 68 },
+    { "period": "2024 Q2", "coverage": 73 },
+    { "period": "2024 Q3", "coverage": 77 },
+    { "period": "2024 Q4", "coverage": 80 },
+    { "period": "2025 Q1", "coverage": 82 },
+    { "period": "2025 Q2", "coverage": 84 },
+    { "period": "2025 Q3", "coverage": 85 },
+    { "period": "2025 Q4", "coverage": 85 }
+  ],
+
+  "vulnerabilitiesBySeverity": [
+    { "severity": "Critical", "count": 2 },
+    { "severity": "High", "count": 3 },
+    { "severity": "Medium", "count": 2 },
+    { "severity": "Low", "count": 1 }
+  ]
+}

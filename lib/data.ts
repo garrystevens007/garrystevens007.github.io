@@ -27,6 +27,8 @@ import experienceJson from "@/content/experience.json";
 import skillsJson from "@/content/skills.json";
 import certificationsJson from "@/content/certifications.json";
 import siteMetaJson from "@/content/site-meta.json";
+import metricsJson from "@/content/metrics.json";
+import projectsJson from "@/content/projects.json";
 
 // One accent color per skill category / stat / cert, cycling through the
 // full sourced palette — purely visual grouping, not a ranking.
@@ -58,17 +60,33 @@ interface EducationData {
   period: string;
 }
 
+export type EmploymentType = "full-time" | "contract" | "internship" | "freelance";
+
 type Role = {
   role: string;
   company: string;
   location: string;
+  // Drives the HR dashboard's "Type" filter. All three roles are currently
+  // full-time — change in content/experience.json if that's ever inaccurate.
+  type: EmploymentType;
   start: string;
   end: string | null;
   period: string;
+  // One-line framing of the role, shown above the (collapsible) bullets on
+  // the HR timeline so a recruiter can scan without expanding anything.
+  summary: string;
+  // Skill tags for this role, used by the HR dashboard's "Skills Used" chips
+  // and its by-skill CV filter. Free-form strings — they don't all have to
+  // exist in skills.json (e.g. tooling mentioned only in passing).
+  skills: string[];
   bullets: string[];
 };
 
-type Skill = { name: string; level: number };
+// "since" is the date this skill first entered real use, estimated from the
+// career timeline (Java/Git go back to the Course-Net instructor years; the
+// backend stack starts at Samsung; Unit4-only tooling starts May 2023). It
+// backs the "Ny experience" chips on the role dashboards — adjust freely.
+type Skill = { name: string; level: number; since: string };
 
 type SkillCategoryData = {
   category: string;
@@ -120,9 +138,21 @@ function assertCertKind(value: string, context: string): "certificate" | "public
   return value;
 }
 
+const EMPLOYMENT_TYPES: readonly EmploymentType[] = ["full-time", "contract", "internship", "freelance"];
+
+function assertEmploymentType(value: string, context: string): EmploymentType {
+  if (!(EMPLOYMENT_TYPES as readonly string[]).includes(value)) {
+    throw new Error(`Invalid type "${value}" in ${context} — must be one of: ${EMPLOYMENT_TYPES.join(", ")}`);
+  }
+  return value as EmploymentType;
+}
+
 const profileData: ProfileData = profileJson;
 const educationData: EducationData = educationJson;
-const experienceData: Role[] = experienceJson;
+const experienceData: Role[] = experienceJson.map((role) => ({
+  ...role,
+  type: assertEmploymentType(role.type, `content/experience.json entry "${role.company}"`),
+}));
 
 const skillCategories: SkillCategoryData[] = skillsJson.map((c) => ({
   category: c.category,
@@ -205,6 +235,106 @@ export const skillCategoryColors: Record<string, Accent> = Object.fromEntries(
 );
 
 export const totalSkillsCount = Object.values(skills).reduce((sum, list) => sum + list.length, 0);
+
+// ---------------------------------------------------------------------------
+// Role-dashboard derivations (see agentsmd/v2/*)
+// ---------------------------------------------------------------------------
+
+// The v2 specs model proficiency as 1-5; content/skills.json stores a 0-100
+// self-rating. Deriving one from the other (rather than duplicating a second
+// hand-maintained number in the JSON) means the two can never disagree.
+export type Proficiency = 1 | 2 | 3 | 4 | 5;
+
+export function proficiencyFromLevel(level: number): Proficiency {
+  const bucket = Math.min(5, Math.max(1, Math.round(level / 20)));
+  return bucket as Proficiency;
+}
+
+export const proficiencyLabels: Record<Proficiency, string> = {
+  1: "Beginner",
+  2: "Intermediate",
+  3: "Proficient",
+  4: "Expert",
+  5: "Mastery",
+};
+
+export type SkillDetail = {
+  name: string;
+  category: string;
+  accent: Accent;
+  level: number;
+  proficiency: Proficiency;
+  yearsOfExperience: number;
+  // How many of the roles in content/experience.json list this skill —
+  // computed, so adding a skill tag to a role updates this automatically.
+  roles: number;
+};
+
+// Flat, fully-annotated skill list — what the HR skills browser, the
+// technical skills showcase and the manager proficiency matrix all read from.
+export const skillDetails: SkillDetail[] = skillCategories.flatMap((category) =>
+  category.skills.map((skill) => ({
+    name: skill.name,
+    category: category.category,
+    accent: category.accent,
+    level: skill.level,
+    proficiency: proficiencyFromLevel(skill.level),
+    yearsOfExperience: Math.max(1, Math.round(yearsBetween(skill.since, null))),
+    roles: experienceData.filter((role) => role.skills.includes(skill.name)).length,
+  }))
+);
+
+export const skillCategoryNames = skillCategories.map((c) => c.category);
+
+// ---------------------------------------------------------------------------
+
+interface MetricsData {
+  disclaimer: string;
+  linesOfCode: number;
+  bugsFixed: number;
+  securityFixes: number;
+  featuresShipped: number;
+  codeReviews: number;
+  testCoverage: number;
+  productionUptime: number;
+  testCoverageTarget: number;
+  uptimeIndustryStandard: number;
+  featuresPerYear: Array<{ year: string; features: number }>;
+  testCoverageTrend: Array<{ period: string; coverage: number }>;
+  vulnerabilitiesBySeverity: Array<{ severity: string; count: number }>;
+}
+
+// NOT verified figures. See the `_provenance` note at the top of
+// content/metrics.json — these came from the API Playground's deliberately
+// fictional mock /api/stats body, and every UI that shows them also renders
+// `metrics.disclaimer` so they aren't presented as audited facts.
+// Deliberately whole-career only — there is no per-company breakdown. Splitting
+// invented totals across named employers ("98 bugs at Unit4") reads as a
+// specific, checkable claim about work done for a real company, which is a much
+// stronger assertion than a career-wide self-reported estimate.
+export const metrics: MetricsData = metricsJson;
+
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  techStack: string[];
+  impact: string;
+  company?: string;
+  github?: string;
+  live?: string;
+};
+
+export const projects: Project[] = projectsJson;
+
+// Distinct employers, derived — feeds the manager dashboard's "Companies
+// Worked" card so it can't drift from content/experience.json.
+export const companiesWorked = new Set(experience.map((role) => role.company)).size;
+
+export const careerStartDate = experience.reduce(
+  (earliest, role) => (role.start < earliest ? role.start : earliest),
+  experience[0]?.start ?? backendExperienceStartDate
+);
 
 export const topSkills = Object.values(skills)
   .flat()
@@ -359,7 +489,7 @@ export const apiPlaygroundEndpoints: Endpoint[] = [
             title: "Backend Engineer",
             location: "South Jakarta, Indonesia",
             email: "stevens.garrys@gmail.com",
-            bio: "Backend Engineer with 7+ years of experience building enterprise-grade Java applications. Passionate about clean code, system reliability, and shipping features that matter.",
+            bio: "Backend Engineer with 4+ years of experience building enterprise-grade Java applications. Passionate about clean code, system reliability, and shipping features that matter.",
             summary:
               "Experienced in designing RESTful services, optimizing databases, and improving system reliability in production environments. Strong focus on data integrity, performance optimization, and writing testable, maintainable code.",
             links: {
@@ -968,6 +1098,196 @@ export const apiPlaygroundLoadingMessages = [
   "⏳ Almost there...",
 ];
 
+// ============================================================================
+// Gamification layer (agentsmd/v2/TECHNICAL_DASHBOARD_SPECS.md)
+// Only the /dashboard/technical playground reads any of this — the classic
+// playground on /portfolio is untouched by it.
+// ============================================================================
+
+export type Difficulty = "easy" | "medium" | "hard";
+
+// Derived rather than hand-tagged on all 14 endpoints, so a new endpoint gets
+// a sensible difficulty automatically instead of silently defaulting to easy.
+export function endpointDifficulty(endpoint: Endpoint): Difficulty {
+  if (endpoint.method === "DELETE" || endpoint.requestBody) return "hard";
+  if (endpoint.method !== "GET" || endpoint.category === "search") return "medium";
+  if (endpoint.pathParams?.length || endpoint.queryParams?.length) return "medium";
+  return "easy";
+}
+
+export const difficultyBasePoints: Record<Difficulty, number> = {
+  easy: 10,
+  medium: 25,
+  hard: 50,
+};
+
+export const methodMultipliers: Record<HttpMethod, number> = {
+  GET: 1.0,
+  POST: 1.5,
+  PUT: 1.5,
+  DELETE: 2.0,
+};
+
+export type Tier = { name: string; minPoints: number; maxPoints: number; emoji: string };
+
+export const tiers: Tier[] = [
+  { name: "Rookie", minPoints: 0, maxPoints: 199, emoji: "🌱" },
+  { name: "Developer", minPoints: 200, maxPoints: 499, emoji: "👨‍💻" },
+  { name: "Professional", minPoints: 500, maxPoints: 999, emoji: "⭐" },
+  { name: "Expert", minPoints: 1000, maxPoints: 1999, emoji: "🏆" },
+  { name: "Architect", minPoints: 2000, maxPoints: 4999, emoji: "👑" },
+  { name: "Legend", minPoints: 5000, maxPoints: Infinity, emoji: "🌟" },
+];
+
+export function tierForPoints(points: number): Tier {
+  return tiers.find((tier) => points <= tier.maxPoints) ?? tiers[tiers.length - 1];
+}
+
+export function nextTierForPoints(points: number): Tier | null {
+  const index = tiers.findIndex((tier) => points <= tier.maxPoints);
+  return index >= 0 && index < tiers.length - 1 ? tiers[index + 1] : null;
+}
+
+export const COMBO_MULTIPLIER_CAP = 5;
+export const COMBO_BONUS_EVERY = 3;
+export const COMBO_BONUS_POINTS = 100;
+export const ERROR_HANDLED_BONUS = 5;
+
+// The spec's own formula (TECHNICAL_DASHBOARD_SPECS.md §3.6) is internally
+// inconsistent: it multiplies by the raw combo AND adds `combo * 50`, while
+// getComboBonus() right below it defines the bonus as a flat +100 on every
+// 3rd request. Left as written, a 10-request streak on a hard DELETE pays
+// 1500 points in a single click and the tier system stops meaning anything.
+// This keeps every ingredient the spec asked for — difficulty base, method
+// multiplier, combo multiplier, periodic bonus, error-handling bonus — but
+// caps the combo multiplier and uses the flat +100 bonus, which is the
+// version the rest of the document (and the UI copy "+100pts") assumes.
+export function calculateRequestPoints(params: {
+  difficulty: Difficulty;
+  method: HttpMethod;
+  combo: number;
+  statusCode: number;
+}): { total: number; base: number; comboMultiplier: number; comboBonus: number; errorBonus: number } {
+  const { difficulty, method, combo, statusCode } = params;
+
+  const base = Math.floor(difficultyBasePoints[difficulty] * (methodMultipliers[method] ?? 1));
+  const comboMultiplier = Math.min(Math.max(combo, 1), COMBO_MULTIPLIER_CAP);
+  const comboBonus = combo > 0 && combo % COMBO_BONUS_EVERY === 0 ? COMBO_BONUS_POINTS : 0;
+  const errorBonus = statusCode >= 400 ? ERROR_HANDLED_BONUS : 0;
+
+  return {
+    total: Math.floor(base * comboMultiplier) + comboBonus + errorBonus,
+    base,
+    comboMultiplier,
+    comboBonus,
+    errorBonus,
+  };
+}
+
+export type SecretEndpointId = "secret-achievement" | "hacker-stats" | "speedrun";
+
+export type SecretEndpointDef = {
+  id: SecretEndpointId;
+  endpoint: Endpoint;
+  unlockLabel: string;
+  notification: string;
+};
+
+// Hidden until their trigger fires — see lib/game.ts for the trigger logic.
+export const secretEndpoints: SecretEndpointDef[] = [
+  {
+    id: "secret-achievement",
+    unlockLabel: "Try 5 different endpoints",
+    notification: "🎉 Secret endpoint unlocked!",
+    endpoint: {
+      id: "get-secret-achievement",
+      path: "/api/fun/secret-achievement",
+      method: "GET",
+      category: "fun",
+      description: "You found the hidden endpoint. Nice curiosity.",
+      responses: [
+        {
+          statusCode: 200,
+          statusLabel: "OK",
+          emoji: "🎉",
+          contentType: "application/json",
+          body: {
+            status: "success",
+            achievement: "The Explorer",
+            message: "Five endpoints in. You read docs by poking at them — that's the right instinct.",
+            data: {
+              unlocked_by: "curiosity",
+              rarity: "uncommon",
+              hint: "Two more secrets exist. One rewards mixing methods, one rewards speed.",
+            },
+          },
+        },
+      ],
+    },
+  },
+  {
+    id: "hacker-stats",
+    unlockLabel: "Send a POST and a GET in one session",
+    notification: "⚡ Hacker Stats endpoint unlocked!",
+    endpoint: {
+      id: "get-hacker-stats",
+      path: "/api/metrics/hacker-stats",
+      method: "GET",
+      category: "stats",
+      description: "Deep-cut metrics for people who read the response body",
+      responses: [
+        {
+          statusCode: 200,
+          statusLabel: "OK",
+          emoji: "⚡",
+          contentType: "application/json",
+          body: {
+            status: "success",
+            disclaimer: "Mock data — this playground has no backend.",
+            data: {
+              favourite_http_status: 201,
+              most_used_keyboard_shortcut: "Ctrl+Shift+F",
+              stack_traces_read_without_flinching: "yes",
+              preferred_debugger: "a well-placed log line, then the actual debugger",
+              coffee_to_commit_ratio: "1.8:1",
+              tabs_vs_spaces: "whatever the linter says",
+            },
+          },
+        },
+      ],
+    },
+  },
+  {
+    id: "speedrun",
+    unlockLabel: "Fire 3 requests in under 10 seconds",
+    notification: "🚀 Speedrun endpoint unlocked!",
+    endpoint: {
+      id: "get-speedrun",
+      path: "/api/fun/speedrun",
+      method: "GET",
+      category: "fun",
+      description: "For the impatient. Respect.",
+      responses: [
+        {
+          statusCode: 200,
+          statusLabel: "OK",
+          emoji: "🚀",
+          contentType: "application/json",
+          body: {
+            status: "success",
+            message: "Three requests in ten seconds. You'd get on well with our CI pipeline.",
+            data: {
+              category: "any%",
+              verified: true,
+              next_challenge: "Now read one of the response bodies properly.",
+            },
+          },
+        },
+      ],
+    },
+  },
+];
+
 export function getAllEndpoints(): Endpoint[] {
   return apiPlaygroundEndpoints;
 }
@@ -1026,12 +1346,16 @@ export function formatEndpointUrl(endpoint: Endpoint, params: Record<string, str
 // along the way. Returns undefined if nothing matches (a real 404).
 export function findEndpointByMethodPath(
   method: HttpMethod,
-  path: string
+  path: string,
+  // Defaults to the standard catalogue. The gamified playground passes its own
+  // list (standard + whichever secrets are unlocked) so a secret endpoint
+  // replayed from history still resolves instead of 404-ing.
+  endpoints: Endpoint[] = apiPlaygroundEndpoints
 ): { endpoint: Endpoint; pathParamValues: Record<string, string> } | undefined {
   const [rawPath] = path.split("?");
   const requestSegments = rawPath.split("/");
 
-  for (const endpoint of apiPlaygroundEndpoints) {
+  for (const endpoint of endpoints) {
     if (endpoint.method !== method) continue;
     const templateSegments = endpoint.path.split("/");
     if (templateSegments.length !== requestSegments.length) continue;

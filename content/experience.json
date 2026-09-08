@@ -3,9 +3,23 @@
     "role": "Software Engineer",
     "company": "Unit4",
     "location": "United Kingdom, Remote",
+    "type": "full-time",
     "start": "2023-05-01",
     "end": null,
     "period": "May 2023 — Present",
+    "summary": "Backend engineering on enterprise ERP modules — REST API development in Java, production incident resolution, security hardening, and code-quality work across a large legacy codebase.",
+    "skills": [
+      "Java",
+      "SQL",
+      "RESTful APIs",
+      "PostgreSQL",
+      "JUnit",
+      "Mockito",
+      "SonarQube",
+      "Jenkins",
+      "Azure DevOps",
+      "WildFly"
+    ],
     "bullets": [
       "Identified and remediated a critical security vulnerability where user passwords were stored in plaintext, implementing secure encryption and safe handling across API and database layers.",
       "Refactored authentication-related components to align with secure coding standards, strengthening overall system security posture.",
@@ -20,9 +34,20 @@
     "role": "Software Engineer",
     "company": "Samsung Research Indonesia",
     "location": "Jakarta, Hybrid",
+    "type": "full-time",
     "start": "2022-02-01",
     "end": "2023-04-30",
     "period": "Feb 2022 — Apr 2023",
+    "summary": "Built an internal platform for AI training workflows from the ground up — REST API design in Java, Elasticsearch relevance tuning, and containerised development environments.",
+    "skills": [
+      "Java",
+      "MVC Pattern",
+      "RESTful APIs",
+      "Elasticsearch",
+      "Docker",
+      "MySQL",
+      "Maven"
+    ],
     "bullets": [
       "Designed and developed an internal web platform to support AI training workflows, building ~10 RESTful API endpoints from scratch using Java (MVC pattern) and structured DTO layers.",
       "Modeled database interactions and implemented backend logic to support seamless collaboration with frontend engineers.",
@@ -36,9 +61,12 @@
     "role": "Academy Instructor",
     "company": "Course-Net Indonesia",
     "location": "Jakarta, Hybrid",
+    "type": "full-time",
     "start": "2019-02-01",
     "end": "2022-01-31",
     "period": "Feb 2019 — Jan 2022",
+    "summary": "Taught Java programming as part of Indonesia's national upskilling program, designing curriculum and hands-on projects for job readiness.",
+    "skills": ["Java", "Git", "SQL"],
     "bullets": [
       "Delivered Java programming training to 500+ students as part of Indonesia's national upskilling program.",
       "Designed structured curriculum and hands-on projects to improve job readiness."

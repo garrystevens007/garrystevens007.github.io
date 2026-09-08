@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
+import { RoleProvider } from "@/context/RoleContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+// Executive dashboard headings only (font-display). Loaded with display:
+// "swap" and a Georgia fallback so a slow font fetch never blanks a heading.
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: "Garry Stevens — Backend Engineer",
@@ -33,11 +43,27 @@ const themeInitScript = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    // data-scroll-behavior opts into the smooth scrolling globals.css sets on
+    // <html> (the sidebar's scroll-to-section relies on it) while telling
+    // Next it's intentional — without it, route changes inherit the smooth
+    // scroll and the new page visibly slides in from the old scroll position.
+    <html
+      lang="en"
+      className={`${inter.variable} ${playfair.variable}`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {/* Role state is provider-level (not per-page) so the sidebar's
+            "Change Role" button and the redirect logic on / and /dashboard
+            all read the same store. The provider renders no chrome of its
+            own — each dashboard brings its own shell, and /portfolio keeps
+            the original DashboardShell untouched. */}
+        <RoleProvider>{children}</RoleProvider>
+      </body>
     </html>
   );
 }

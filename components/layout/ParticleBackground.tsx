@@ -12,15 +12,32 @@ import { useEffect, useRef } from "react";
 // Color is the exact `info` gradient's lighter stop (#49a3f1 / rgb(73,163,241))
 // already in tailwind.config.ts — same sourced palette, not a new color pick.
 // Only *intensity* (opacity/glow) differs between themes, not the hue itself.
+//
+// PERFORMANCE — read before changing the draw path:
+// This used to set `ctx.shadowBlur = 6` for the whole dark-mode draw pass,
+// which measured 60fps light vs 35fps dark in headless Chromium (far worse on
+// a real high-DPI display). Canvas shadows run an offscreen blur per draw
+// call, and this draws ~2,600 connection lines per frame — so dark mode was
+// asking for thousands of blur passes every frame. The glow is now faked with
+// a second, larger, low-alpha fill per dot (no blur), and the lines are
+// batched into a handful of alpha buckets so the whole network costs ~6
+// stroke() calls instead of thousands. Do not reintroduce shadowBlur in a
+// loop; it is only affordable on the single cursor node.
 
 const DOT_RGB = "73, 163, 241";
 const CONNECT_DISTANCE = 130;
+const CONNECT_DISTANCE_SQ = CONNECT_DISTANCE * CONNECT_DISTANCE;
+// Connection lines are grouped into this many opacity steps and each step is
+// stroked as ONE path. The banding is imperceptible at these alphas and it
+// collapses thousands of stroke() calls into a handful.
+const ALPHA_BUCKETS = 6;
 // The cursor always connects to its N nearest particles (capped by a max
 // distance so it doesn't draw across an empty screen), rather than whatever
 // happens to fall within a fixed radius — a radius-only approach could mean
 // zero connections in sparser areas, which reads as "hovering does nothing."
 const CURSOR_NEAREST_COUNT = 6;
 const CURSOR_MAX_CONNECT_DISTANCE = 260;
+const CURSOR_MAX_CONNECT_DISTANCE_SQ = CURSOR_MAX_CONNECT_DISTANCE * CURSOR_MAX_CONNECT_DISTANCE;
 const CURSOR_REPEL_DISTANCE = 90;
 
 type Particle = {
@@ -64,6 +81,13 @@ export function ParticleBackground() {
     let animationFrame = 0;
     let running = true;
     const mouse = { x: -9999, y: -9999, active: false };
+
+    // Reused across frames so the hot loops allocate nothing. Each bucket
+    // holds flat [x1,y1,x2,y2, ...] segment coordinates.
+    const buckets: number[][] = Array.from({ length: ALPHA_BUCKETS }, () => []);
+    // Fixed-size scratch for the cursor's nearest-N selection.
+    const nearestIdx = new Int32Array(CURSOR_NEAREST_COUNT);
+    const nearestDistSq = new Float64Array(CURSOR_NEAREST_COUNT);
 
     function makeParticles(w: number, h: number): Particle[] {
       const count = particleCountFor(w, h);
@@ -113,36 +137,69 @@ export function ParticleBackground() {
       const dotAlpha = isDark ? 0.85 : 0.45;
       const lineAlphaMax = isDark ? 0.32 : 0.12;
       const cursorAlphaMax = isDark ? 0.5 : 0.22;
+      const count = particles.length;
 
-      if (isDark) {
-        ctx.shadowColor = `rgba(${DOT_RGB}, 0.9)`;
-        ctx.shadowBlur = 6;
-      } else {
-        ctx.shadowBlur = 0;
-      }
+      // ---- particle-particle connections, bucketed by opacity -------------
+      for (let b = 0; b < ALPHA_BUCKETS; b++) buckets[b].length = 0;
 
-      // Particle-particle connections (checked once per pair)
-      for (let i = 0; i < particles.length; i++) {
+      for (let i = 0; i < count; i++) {
         const a = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
+        const ax = a.x;
+        const ay = a.y;
+        for (let j = i + 1; j < count; j++) {
           const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < CONNECT_DISTANCE) {
-            const alpha = lineAlphaMax * (1 - dist / CONNECT_DISTANCE);
-            ctx.strokeStyle = `rgba(${DOT_RGB}, ${alpha})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
+          const dx = ax - b.x;
+          // Cheap axis rejection before touching dy — most pairs on screen
+          // fail here, and it costs one compare instead of a multiply.
+          if (dx > CONNECT_DISTANCE || dx < -CONNECT_DISTANCE) continue;
+          const dy = ay - b.y;
+          if (dy > CONNECT_DISTANCE || dy < -CONNECT_DISTANCE) continue;
+          const distSq = dx * dx + dy * dy;
+          if (distSq >= CONNECT_DISTANCE_SQ) continue;
+
+          // Only now is a square root worth paying for. (Math.hypot is also
+          // markedly slower than Math.sqrt — it guards against overflow we
+          // can't hit with screen coordinates.)
+          const closeness = 1 - Math.sqrt(distSq) / CONNECT_DISTANCE;
+          let bucket = (closeness * ALPHA_BUCKETS) | 0;
+          if (bucket >= ALPHA_BUCKETS) bucket = ALPHA_BUCKETS - 1;
+          const segments = buckets[bucket];
+          segments.push(ax, ay, b.x, b.y);
         }
       }
 
-      // Dots (with a slow per-particle twinkle)
-      for (const p of particles) {
+      ctx.lineWidth = 1;
+      for (let b = 0; b < ALPHA_BUCKETS; b++) {
+        const segments = buckets[b];
+        if (segments.length === 0) continue;
+        // Bucket midpoint keeps the fade visually centred on the true value.
+        const alpha = (lineAlphaMax * (b + 0.5)) / ALPHA_BUCKETS;
+        ctx.strokeStyle = `rgba(${DOT_RGB}, ${alpha})`;
+        ctx.beginPath();
+        for (let s = 0; s < segments.length; s += 4) {
+          ctx.moveTo(segments[s], segments[s + 1]);
+          ctx.lineTo(segments[s + 2], segments[s + 3]);
+        }
+        ctx.stroke();
+      }
+
+      // ---- dots (with a slow per-particle twinkle) ------------------------
+      // In dark mode each dot gets a larger, very faint halo underneath it.
+      // Two plain fills are an order of magnitude cheaper than one shadowed
+      // fill and read almost identically at this size.
+      if (isDark) {
+        for (let i = 0; i < count; i++) {
+          const p = particles[i];
+          const twinkle = 0.75 + 0.25 * Math.sin(time * 0.0012 + p.phase);
+          ctx.fillStyle = `rgba(${DOT_RGB}, ${0.1 * twinkle})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius * 2.8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < count; i++) {
+        const p = particles[i];
         const twinkle = 0.75 + 0.25 * Math.sin(time * 0.0012 + p.phase);
         ctx.fillStyle = `rgba(${DOT_RGB}, ${dotAlpha * twinkle})`;
         ctx.beginPath();
@@ -150,20 +207,48 @@ export function ParticleBackground() {
         ctx.fill();
       }
 
-      // Cursor -> nearest-neighbor connections, drawn last so they (and the
-      // cursor's own glowing node) sit on top of everything else — a clear
-      // "you're now part of the network" highlight, not lost among the
-      // ambient particle-particle lines underneath.
+      // ---- cursor -> nearest-neighbour connections ------------------------
+      // Drawn last so they (and the cursor's own glowing node) sit on top of
+      // everything else — a clear "you're now part of the network" highlight,
+      // not lost among the ambient particle-particle lines underneath.
       if (mouse.active) {
-        const nearest = particles
-          .map((p) => ({ p, dist: Math.hypot(p.x - mouse.x, p.y - mouse.y) }))
-          .filter((entry) => entry.dist < CURSOR_MAX_CONNECT_DISTANCE)
-          .sort((entryA, entryB) => entryA.dist - entryB.dist)
-          .slice(0, CURSOR_NEAREST_COUNT);
+        // Insertion-sort into a fixed-size top-N buffer: no map/filter/sort
+        // allocations on a 360-element array every single frame.
+        let found = 0;
+        for (let i = 0; i < count; i++) {
+          const p = particles[i];
+          const dx = p.x - mouse.x;
+          if (dx > CURSOR_MAX_CONNECT_DISTANCE || dx < -CURSOR_MAX_CONNECT_DISTANCE) continue;
+          const dy = p.y - mouse.y;
+          if (dy > CURSOR_MAX_CONNECT_DISTANCE || dy < -CURSOR_MAX_CONNECT_DISTANCE) continue;
+          const distSq = dx * dx + dy * dy;
+          if (distSq >= CURSOR_MAX_CONNECT_DISTANCE_SQ) continue;
+
+          if (found < CURSOR_NEAREST_COUNT) {
+            let k = found++;
+            while (k > 0 && nearestDistSq[k - 1] > distSq) {
+              nearestDistSq[k] = nearestDistSq[k - 1];
+              nearestIdx[k] = nearestIdx[k - 1];
+              k--;
+            }
+            nearestDistSq[k] = distSq;
+            nearestIdx[k] = i;
+          } else if (distSq < nearestDistSq[CURSOR_NEAREST_COUNT - 1]) {
+            let k = CURSOR_NEAREST_COUNT - 1;
+            while (k > 0 && nearestDistSq[k - 1] > distSq) {
+              nearestDistSq[k] = nearestDistSq[k - 1];
+              nearestIdx[k] = nearestIdx[k - 1];
+              k--;
+            }
+            nearestDistSq[k] = distSq;
+            nearestIdx[k] = i;
+          }
+        }
 
         ctx.lineWidth = 1.2;
-        for (const { p, dist } of nearest) {
-          const proximity = 1 - dist / CURSOR_MAX_CONNECT_DISTANCE;
+        for (let n = 0; n < found; n++) {
+          const p = particles[nearestIdx[n]];
+          const proximity = 1 - Math.sqrt(nearestDistSq[n]) / CURSOR_MAX_CONNECT_DISTANCE;
           // Floored so even the farthest of the "nearest N" stays visible —
           // the point is a reliable, obvious connection, not one that fades
           // to nothing right as it's guaranteed to appear.
@@ -175,15 +260,15 @@ export function ParticleBackground() {
           ctx.stroke();
         }
 
+        // The one place a real blur is affordable: a single node, once a frame.
         ctx.shadowColor = `rgba(${DOT_RGB}, 0.9)`;
         ctx.shadowBlur = isDark ? 14 : 8;
         ctx.fillStyle = `rgba(${DOT_RGB}, ${isDark ? 0.95 : 0.7})`;
         ctx.beginPath();
         ctx.arc(mouse.x, mouse.y, 3, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
-
-      ctx.shadowBlur = 0;
     }
 
     function step(time: number) {
@@ -238,7 +323,12 @@ export function ParticleBackground() {
       if (document.hidden) {
         running = false;
         cancelAnimationFrame(animationFrame);
-      } else if (!prefersReducedMotion) {
+      } else if (!prefersReducedMotion && !running) {
+        // The `!running` guard matters: visibilitychange can fire more than
+        // once for the same visible state, and starting a second rAF loop
+        // while one is already queued doubles the loop every time it happens
+        // — which looks exactly like the stutter this component is meant to
+        // avoid.
         running = true;
         animationFrame = requestAnimationFrame(step);
       }
@@ -261,6 +351,7 @@ export function ParticleBackground() {
     if (prefersReducedMotion) {
       // Respect the OS setting: render one static frame, no motion, no
       // cursor interaction loop — still visually present, just not animated.
+      running = false;
       drawFrame(0);
     } else {
       animationFrame = requestAnimationFrame(step);

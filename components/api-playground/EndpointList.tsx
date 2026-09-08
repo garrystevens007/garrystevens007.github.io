@@ -8,9 +8,19 @@ type EndpointListProps = {
   endpoints: Endpoint[];
   selectedEndpoint: Endpoint | null;
   onSelectEndpoint: (endpoint: Endpoint) => void;
+  /** Gamified playground only — shows the difficulty chip on each row. */
+  showDifficulty?: boolean;
+  /** Endpoint ids that were unlocked as Easter eggs, for the ✨ Secret chip. */
+  secretEndpointIds?: string[];
 };
 
-export function EndpointList({ endpoints, selectedEndpoint, onSelectEndpoint }: EndpointListProps) {
+export function EndpointList({
+  endpoints,
+  selectedEndpoint,
+  onSelectEndpoint,
+  showDifficulty = false,
+  secretEndpointIds = [],
+}: EndpointListProps) {
   const [searchInput, setSearchInput] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
 
@@ -50,6 +60,8 @@ export function EndpointList({ endpoints, selectedEndpoint, onSelectEndpoint }: 
               endpoint={endpoint}
               isSelected={selectedEndpoint?.id === endpoint.id}
               onSelect={() => onSelectEndpoint(endpoint)}
+              showDifficulty={showDifficulty}
+              isSecret={secretEndpointIds.includes(endpoint.id)}
             />
           ))
         )}
