@@ -65,6 +65,18 @@ on **invented English demo data**; the phone screens are the earlier phone compa
 `tryApp: true` shows "I'd like to try Dompi": a `mailto:` with a ready message (`tryAppMailto` in `lib/data.ts`) and a
 LinkedIn link; the owner grants access personally. Never link Dompi's source code.
 
+**Present Dompi only as a private project in active development** (owner's decision, 2026-10-05): no Premium tier,
+pricing, licences, admin console, beta programme or "Founder" title anywhere, including inside screenshots (the
+mockup script hides the app's Premium menu). His employment contract restricts outside business activity without
+written consent, so nothing here may read as a commercial venture.
+
+# Employer confidentiality
+
+The owner's employment contract has a confidentiality clause with no time limit. Never publish an employer's
+internal details: security weaknesses, incidents, internal processes, customers or figures. Describe the work in
+general terms ("strengthened credential handling and authentication components"), as the Experience bullets now do.
+A case study about Unit4's credential storage was removed for this reason; do not add it back.
+
 # Certifications
 
 Rendered from source PDFs outside the repo by [scripts/render_certificates.py](scripts/render_certificates.py)

@@ -10,7 +10,7 @@ export function TryApp({ product }: { product: string }) {
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">Early access</p>
       <h2 className="mt-3 font-serif text-3xl font-normal text-ink">I&apos;d like to try {product}</h2>
       <p className="mt-3 max-w-[58ch] text-ink-2">
-        {product} is in a private beta. Send me a note and I will share access with you personally.
+        {product} is a private project I keep developing. Send me a note and I will share access with you personally.
       </p>
       <div className="mt-7 flex flex-wrap gap-3">
         <a

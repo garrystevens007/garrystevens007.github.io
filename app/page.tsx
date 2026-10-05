@@ -12,7 +12,7 @@ const publications = certifications.filter((c) => c.kind === "publication").leng
 const glance = [
   { value: `${yearsOfExperience}+`, label: "years in backend engineering, on enterprise and research platforms" },
   { value: "500+", label: "students trained in Java in a national upskilling programme" },
-  { value: String(cases.length), label: "case studies, from a production security fix to a full product" },
+  { value: String(cases.length), label: "case studies, from a research platform to a product of my own" },
   { value: String(publications), label: publications === 1 ? "peer-reviewed publication in the ACM Digital Library" : "peer-reviewed publications" },
 ];
 

@@ -21,8 +21,7 @@
       "WildFly"
     ],
     "bullets": [
-      "Identified and remediated a critical security vulnerability where user passwords were stored in plaintext, implementing secure encryption and safe handling across API and database layers.",
-      "Refactored authentication-related components to align with secure coding standards, strengthening overall system security posture.",
+      "Strengthened credential handling and authentication components across the API and database layers in line with secure coding standards.",
       "Developed and maintained enterprise REST APIs in Java for ERP modules, delivering backend enhancements end-to-end while ensuring backward compatibility.",
       "Investigated and resolved production incidents across business-critical systems, performing root-cause analysis to prevent recurrence.",
       "Investigated and optimized SQL queries to improve performance of data-intensive workflows.",

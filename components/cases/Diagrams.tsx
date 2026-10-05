@@ -51,7 +51,7 @@ function DompiDiagram() {
       <Box x={350} y={65} w={210} h={110} title="Cloudflare relay" lines={["Inbox for new entries", "Stores backups it cannot read"]} accent />
       <Box x={590} y={20} w={280} h={56} title="Telegram bot · “coffee 25k”" />
       <Box x={590} y={92} w={280} h={56} title="iPhone shortcut · QRIS receipt" />
-      <Box x={590} y={164} w={280} h={56} title="Admin console · licences" />
+      <Box x={590} y={164} w={280} h={56} title="Phone app · in development" />
       <g className="stroke-ink" strokeWidth={1.4} fill="none">
         <path d="M320 120 H350" />
         <path d="M560 120 H575 M575 48 V192 M575 48 H590 M575 120 H590 M575 192 H590" />

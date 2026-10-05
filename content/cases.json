@@ -9,7 +9,7 @@
     "role": "Product owner, architect, engineer",
     "timeline": "Sep – Oct 2026",
     "delivery": "AI-assisted (Claude Code)",
-    "status": "In daily use · private beta planned",
+    "status": "Private project · in active development",
     "tags": ["Rust", "Tauri 2", "React · TypeScript", "Encrypted SQLite", "Cloudflare Workers · D1", "Telegram Bot API", "Java · Spring Boot (v1)"],
     "stats": [
       { "value": "~70k", "label": "lines of production code across Rust, TypeScript and Java" },
@@ -30,7 +30,7 @@
     "impact": [
       { "title": "In daily use", "body": "Running on real personal finances since the first release, with the data carried safely through a full platform rewrite." },
       { "title": "Re-platformed for speed", "body": "Moving from a Java + embedded PostgreSQL desktop to an in-process Rust core in Tauri cut cold start from 6.9 s to 0.3 s, install size from 254 MB to 16 MB, and memory from 833 MB to 439 MB." },
-      { "title": "Ready for a business model", "body": "A free desktop tier, a server-backed Premium tier, and an admin console for licences and bank-transfer review." }
+      { "title": "Built to keep growing", "body": "A private project I keep developing, against a staged roadmap that runs from storage and security foundations to importing statements from more banks." }
     ],
     "hero": {
       "desktop": { "src": "/images/cases/dompi/desktop-dashboard.webp", "alt": "Dompi desktop dashboard: total assets over twelve months, monthly spending and fixed costs" },
@@ -46,31 +46,7 @@
     ],
     "diagram": "dompi",
     "tryApp": true,
-    "footnote": "Screens show invented demo data. Dompi's source code is private; access to the app is by invitation."
-  },
-  {
-    "slug": "credential-security",
-    "title": "Removing plaintext credentials from a production ERP",
-    "headline": "Finding and closing a critical security gap in a large, long-lived enterprise codebase",
-    "organisation": "Unit4",
-    "year": "2023 – present",
-    "summary": "Found that user passwords were persisted in plaintext, then fixed the storage and hardened the surrounding authentication path across the API and database layers.",
-    "role": "Software engineer",
-    "timeline": "Unit4, May 2023 – present",
-    "tags": ["Java", "Java EE", "SQL", "JUnit", "Mockito", "SonarQube"],
-    "context": [
-      "Unit4 builds enterprise ERP software used by organisations to run finance, HR and operations. Its backend is a large legacy Java codebase where changes must stay backward compatible.",
-      "During routine work I identified a critical vulnerability: user passwords were being stored in plaintext."
-    ],
-    "approach": [
-      { "title": "Fix the root cause", "body": "Implemented secure encryption and safe handling of credentials across both the API and the database layers, rather than patching a single call site." },
-      { "title": "Harden the surrounding path", "body": "Refactored authentication-related components to align with secure coding standards." },
-      { "title": "Prove it with tests", "body": "Strengthened unit test coverage with JUnit and Mockito and addressed related SonarQube findings, so the fix stays fixed." }
-    ],
-    "impact": [
-      { "title": "Critical risk removed", "body": "Plaintext credential storage eliminated from a production enterprise system." },
-      { "title": "Stronger security posture", "body": "Authentication components brought in line with secure coding standards, without breaking backward compatibility." }
-    ]
+    "footnote": "Screens show invented demo data. Dompi is a private project; its source code is not public and access to the app is personal."
   },
   {
     "slug": "ai-training-platform",
