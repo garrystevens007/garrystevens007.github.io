@@ -1,68 +1,51 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
-import { RoleProvider } from "@/context/RoleContext";
+import { Fraunces, Inter } from "next/font/google";
+import { ParticleBackground } from "@/components/site/ParticleBackground";
+import { SiteHeader } from "@/components/site/SiteHeader";
+import { SiteFooter } from "@/components/site/SiteFooter";
+import { profile } from "@/lib/data";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
-// Executive dashboard headings only (font-display). Loaded with display:
-// "swap" and a Georgia fallback so a slow font fetch never blanks a heading.
-const playfair = Playfair_Display({
+// The serif carries the editorial voice: headings and large figures only.
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-playfair",
+  variable: "--font-fraunces",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
 });
 
+const description = `${profile.name}, ${profile.title.toLowerCase()} in ${profile.location}. Case studies in secure enterprise systems, product delivery and teaching.`;
+
 export const metadata: Metadata = {
-  title: "Garry Stevens — Backend Engineer",
-  description:
-    "Backend Engineer portfolio presented as a dashboard: experience, skills, and projects at a glance.",
-  openGraph: {
-    title: "Garry Stevens — Backend Engineer",
-    description:
-      "Backend Engineer portfolio presented as a dashboard: experience, skills, and projects at a glance.",
-    type: "website",
-  },
+  metadataBase: new URL("https://garrystevens007.github.io"),
+  title: { default: `${profile.name}, ${profile.title}`, template: `%s · ${profile.name}` },
+  description,
+  openGraph: { title: `${profile.name}, ${profile.title}`, description, type: "website" },
 };
 
-// Runs before hydration so the correct theme class is present on first paint.
-// Light is always the default — dark mode only applies if the visitor
-// explicitly switched it on (via ThemeToggle) on this device before. This
-// deliberately ignores prefers-color-scheme, so the site doesn't silently
-// open in dark mode just because the OS/browser happens to be set to dark.
+// Runs before hydration so the chosen theme is on the first paint. Light is the default; dark only applies when
+// the visitor switched it on (ThemeToggle) on this device, never from the OS setting alone.
 const themeInitScript = `
 (function () {
   try {
-    if (localStorage.getItem('theme') === 'dark') {
-      document.documentElement.classList.add('dark');
-    }
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
   } catch (e) {}
 })();
 `;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // data-scroll-behavior opts into the smooth scrolling globals.css sets on
-    // <html> (the sidebar's scroll-to-section relies on it) while telling
-    // Next it's intentional — without it, route changes inherit the smooth
-    // scroll and the new page visibly slides in from the old scroll position.
-    <html
-      lang="en"
-      className={`${inter.variable} ${playfair.variable}`}
-      data-scroll-behavior="smooth"
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="font-sans antialiased">
-        {/* Role state is provider-level (not per-page) so the sidebar's
-            "Change Role" button and the redirect logic on / and /dashboard
-            all read the same store. The provider renders no chrome of its
-            own — each dashboard brings its own shell, and /portfolio keeps
-            the original DashboardShell untouched. */}
-        <RoleProvider>{children}</RoleProvider>
+        <ParticleBackground />
+        <SiteHeader />
+        <main>{children}</main>
+        <SiteFooter />
       </body>
     </html>
   );

@@ -1,18 +1,14 @@
-# Garry Stevens — Portfolio Dashboard
+# Garry Stevens: portfolio
 
-Personal portfolio, built to look and behave like an admin **dashboard**
-(Material Dashboard–style) instead of a traditional scrolling portfolio page — stat cards, an
-interactive API Playground, and liquid-glass certification cards tell the story of experience,
-skills, and credentials.
+A professional portfolio in an editorial, consulting-style layout: experience, case studies (Dompi first),
+capabilities, credentials and contact. Live at https://garrystevens007.github.io/.
 
-See [agents.md](agents.md) for the full spec, content decisions, and outstanding placeholders.
+See [agents.md](agents.md) for the design rules, content architecture and decisions.
 
 ## Stack
 
-Next.js 16 (App Router) + TypeScript + Tailwind CSS + Recharts. Statically exported
-(`output: "export"`) — no server required, deployable to GitHub Pages as-is (see
-[agents.md](agents.md#deployment) for the details and the one open naming decision that affects
-the final URL).
+Next.js 16 (App Router) + TypeScript + Tailwind CSS, statically exported (`output: "export"`) and deployed to
+GitHub Pages by GitHub Actions on every push to `main`.
 
 ## Getting started
 
@@ -21,12 +17,10 @@ npm install
 npm run dev       # http://localhost:3000
 ```
 
-Other scripts: `npm run build` (produces `out/`), `npm run lint`. To preview the exported static
-site the way a real host would serve it, run `npx serve out` — `npm run start` (`next start`)
-doesn't work with a static export.
+`npm run build` writes the static site to `out/` (a `postbuild` step fixes Next 16's RSC payload names, see
+agents.md); `npm run lint`. Preview the export with `npx serve out`.
 
-## Status
+## Editing content
 
-🚧 In progress — see the checklist in [agents.md](agents.md#definition-of-done). Notably: not yet
-deployed anywhere, and a couple of content placeholders (real profile photo, self-rated skill
-percentages) still open.
+Everything on the site comes from `content/*.json`. Edit, commit, push; the site redeploys. To add a case study, see
+"Adding a case study" in [agents.md](agents.md).

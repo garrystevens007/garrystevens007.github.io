@@ -1,0 +1,120 @@
+[
+  {
+    "slug": "dompi",
+    "title": "Dompi: a privacy-first personal finance product",
+    "headline": "From blank page to daily use in two weeks, without sending anyone's finances to the cloud",
+    "organisation": "Personal product",
+    "year": "2026",
+    "summary": "A desktop finance app that turns bank statements, receipts and chat messages into a monthly plan, while every rupiah of personal data stays on the user's own computer.",
+    "role": "Product owner, architect, engineer",
+    "timeline": "Sep – Oct 2026",
+    "delivery": "AI-assisted (Claude Code)",
+    "status": "In daily use · private beta planned",
+    "tags": ["Rust", "Tauri 2", "React · TypeScript", "Encrypted SQLite", "Cloudflare Workers · D1", "Telegram Bot API", "Java · Spring Boot (v1)"],
+    "stats": [
+      { "value": "~70k", "label": "lines of production code across Rust, TypeScript and Java" },
+      { "value": "~890", "label": "automated tests guarding parsing, money maths and sync" },
+      { "value": "23×", "label": "faster cold start after re-platforming (6.9 s → 0.3 s)" },
+      { "value": "100%", "label": "of the financial history kept on the device; cloud backups are encrypted with a key only the user holds" }
+    ],
+    "context": [
+      "Young professionals in Indonesia pay by credit card, QRIS, e-wallet and cash. Spending ends up in five places, and budgeting apps either want bank credentials or upload everything to their own servers.",
+      "The brief I set myself: one place for every rupiah, built so that the most sensitive data never has to leave the user's laptop."
+    ],
+    "approach": [
+      { "title": "Privacy by architecture, not policy", "body": "The database is encrypted on the device and its keys live in the operating system's keystore. The cloud only relays new entries and stores backups it cannot read." },
+      { "title": "Meet the user where money moves", "body": "Credit card statement PDFs are parsed automatically, QRIS receipts arrive from an iPhone shortcut, and purchases can be logged by chatting with a Telegram bot (\"coffee 25k\")." },
+      { "title": "From tracking to decisions", "body": "A pay-yourself-first plan splits each payday into fixed costs, emergency fund, retirement and goals, and turns what is left into a daily \"safe to spend\" figure." },
+      { "title": "Staged delivery with an AI pair", "body": "I wrote the specification as 20 numbered stages with explicit quality and security gates. AI accelerated implementation; I owned the architecture, the security review and the QA sign-off at every stage." }
+    ],
+    "impact": [
+      { "title": "In daily use", "body": "Running on real personal finances since the first release, with the data carried safely through a full platform rewrite." },
+      { "title": "Re-platformed for speed", "body": "Moving from a Java + embedded PostgreSQL desktop to an in-process Rust core in Tauri cut cold start from 6.9 s to 0.3 s, install size from 254 MB to 16 MB, and memory from 833 MB to 439 MB." },
+      { "title": "Ready for a business model", "body": "A free desktop tier, a server-backed Premium tier, and an admin console for licences and bank-transfer review." }
+    ],
+    "hero": {
+      "desktop": { "src": "/images/cases/dompi/desktop-dashboard.webp", "alt": "Dompi desktop dashboard: total assets over twelve months, monthly spending and fixed costs" },
+      "phone": { "src": "/images/cases/dompi/phone-home.webp", "alt": "Dompi on a phone: spending this month, budget left and safe to spend today" }
+    },
+    "gallery": [
+      { "src": "/images/cases/dompi/desktop-networth.webp", "alt": "Net worth page with asset composition and investment performance", "caption": "Net worth: asset composition, and investment performance against the capital put in.", "device": "desktop" },
+      { "src": "/images/cases/dompi/desktop-plan.webp", "alt": "Payday plan page splitting income into bills, savings and spending", "caption": "Payday plan: income split pay-yourself-first, with a savings rate the user can act on.", "device": "desktop" },
+      { "src": "/images/cases/dompi/desktop-goals.webp", "alt": "Goals page with progress towards each savings goal", "caption": "Goals: progress and the monthly amount needed to stay on track.", "device": "desktop" },
+      { "src": "/images/cases/dompi/desktop-budget.webp", "alt": "Budget page by category", "caption": "Budget by category, set from the payday plan.", "device": "desktop" },
+      { "src": "/images/cases/dompi/phone-home.webp", "alt": "Phone home screen with the month's spending", "caption": "Phone companion (in development): the month at a glance.", "device": "phone" },
+      { "src": "/images/cases/dompi/phone-record.webp", "alt": "Recording a transaction on the phone", "caption": "Phone companion (in development): record a purchase in seconds.", "device": "phone" }
+    ],
+    "diagram": "dompi",
+    "tryApp": true,
+    "footnote": "Screens show invented demo data. Dompi's source code is private; access to the app is by invitation."
+  },
+  {
+    "slug": "credential-security",
+    "title": "Removing plaintext credentials from a production ERP",
+    "headline": "Finding and closing a critical security gap in a large, long-lived enterprise codebase",
+    "organisation": "Unit4",
+    "year": "2023 – present",
+    "summary": "Found that user passwords were persisted in plaintext, then fixed the storage and hardened the surrounding authentication path across the API and database layers.",
+    "role": "Software engineer",
+    "timeline": "Unit4, May 2023 – present",
+    "tags": ["Java", "Java EE", "SQL", "JUnit", "Mockito", "SonarQube"],
+    "context": [
+      "Unit4 builds enterprise ERP software used by organisations to run finance, HR and operations. Its backend is a large legacy Java codebase where changes must stay backward compatible.",
+      "During routine work I identified a critical vulnerability: user passwords were being stored in plaintext."
+    ],
+    "approach": [
+      { "title": "Fix the root cause", "body": "Implemented secure encryption and safe handling of credentials across both the API and the database layers, rather than patching a single call site." },
+      { "title": "Harden the surrounding path", "body": "Refactored authentication-related components to align with secure coding standards." },
+      { "title": "Prove it with tests", "body": "Strengthened unit test coverage with JUnit and Mockito and addressed related SonarQube findings, so the fix stays fixed." }
+    ],
+    "impact": [
+      { "title": "Critical risk removed", "body": "Plaintext credential storage eliminated from a production enterprise system." },
+      { "title": "Stronger security posture", "body": "Authentication components brought in line with secure coding standards, without breaking backward compatibility." }
+    ]
+  },
+  {
+    "slug": "ai-training-platform",
+    "title": "An internal platform for AI training workflows",
+    "headline": "Designing a backend from scratch and tuning search so teams find the right training data",
+    "organisation": "Samsung Research Indonesia",
+    "year": "2022 – 2023",
+    "summary": "Designed and built an internal web platform supporting AI training workflows, with about ten REST endpoints and tuned Elasticsearch relevance.",
+    "role": "Software engineer",
+    "timeline": "Samsung Research Indonesia, Feb 2022 – Apr 2023",
+    "tags": ["Java", "MVC", "REST APIs", "Elasticsearch", "Docker", "MySQL", "Maven"],
+    "context": [
+      "Research teams needed an internal web platform to support their AI training workflows, built alongside frontend engineers in an Agile team."
+    ],
+    "approach": [
+      { "title": "API design from a blank page", "body": "Built about ten RESTful endpoints from scratch in Java using an MVC structure and clear DTO layers." },
+      { "title": "Search that finds the right data", "body": "Implemented and fine-tuned Elasticsearch indexing and relevance scoring." },
+      { "title": "Consistent environments", "body": "Containerised services with Docker and modelled the database interactions the frontend relied on." }
+    ],
+    "impact": [
+      { "title": "Better retrieval", "body": "Improved search accuracy and data retrieval performance for training data." },
+      { "title": "Maintainable codebase", "body": "Reduced cognitive complexity and code smells flagged by static analysis, delivered iteratively with Jira and Kanban." }
+    ]
+  },
+  {
+    "slug": "java-upskilling",
+    "title": "Teaching Java to 500+ students in a national upskilling programme",
+    "headline": "Turning beginners into job-ready programmers through structured, hands-on curriculum",
+    "organisation": "Course-Net Indonesia",
+    "year": "2019 – 2022",
+    "summary": "Delivered Java programming training to more than 500 students as part of Indonesia's national upskilling programme, and designed the curriculum behind it.",
+    "role": "Academy instructor",
+    "timeline": "Course-Net Indonesia, Feb 2019 – Jan 2022",
+    "tags": ["Java", "Git", "SQL", "Curriculum design", "Coaching"],
+    "context": [
+      "Indonesia's national upskilling programme aimed to prepare people for programming jobs. Many students arrived with no programming background."
+    ],
+    "approach": [
+      { "title": "Structured curriculum", "body": "Designed a structured curriculum that builds from fundamentals to complete applications." },
+      { "title": "Learning by building", "body": "Hands-on projects aimed at what employers expect from a junior developer." }
+    ],
+    "impact": [
+      { "title": "500+ students trained", "body": "Delivered Java training to more than 500 students across the programme." },
+      { "title": "Certified coach", "body": "Certified Course-Net Coach (CCC), 2021." }
+    ]
+  }
+]
