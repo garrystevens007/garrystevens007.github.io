@@ -27,7 +27,19 @@ const CONNECT_DISTANCE_SQ = CONNECT_DISTANCE * CONNECT_DISTANCE;
 // Connection lines are grouped into this many opacity steps and each step is
 // stroked as ONE path. The banding is imperceptible at these alphas and it
 // collapses thousands of stroke() calls into a handful.
-const ALPHA_BUCKETS = 6;
+// 16 steps, eased (see lineAlpha): with only 6 linear steps a line visibly
+// jumped in opacity as two dots drifted apart, which read as stiff motion.
+const ALPHA_BUCKETS = 16;
+// Motion is in real time, not per frame: the same drift on a 60 Hz and a 144 Hz
+// screen, and no lurch when a frame is dropped. Speeds are px per second.
+const MIN_SPEED = 7;
+const MAX_SPEED = 16;
+// How fast a dot's heading can turn (radians per ms). The turn rate itself is a
+// slow per-dot sine, so paths bend one way, straighten, then bend the other —
+// floating rather than sliding on rails.
+const TURN_RATE = 0.0002;
+// A long frame (tab switch, GC pause) is clamped so dots never jump.
+const MAX_FRAME_MS = 50;
 // The cursor always connects to its N nearest particles (capped by a max
 // distance so it doesn't draw across an empty screen), rather than whatever
 // happens to fall within a fixed radius — a radius-only approach could mean
@@ -40,10 +52,12 @@ const CURSOR_REPEL_DISTANCE = 90;
 type Particle = {
   x: number;
   y: number;
-  // Constant ambient drift — never decays, this is what keeps the network
-  // perpetually alive rather than settling into stillness.
-  baseVx: number;
-  baseVy: number;
+  // Ambient drift: a heading that wanders smoothly at a constant speed. It
+  // never decays, which is what keeps the network alive.
+  heading: number;
+  speed: number;
+  turnFreq: number;
+  turnPhase: number;
   // Temporary push from cursor repulsion, on top of the base drift — this is
   // the only velocity component that decays (see the drag comment in step()).
   impulseVx: number;
@@ -73,7 +87,7 @@ export function ParticleBackground() {
     let width = 0;
     let height = 0;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let particles: Particle[] = [];
+    const particles: Particle[] = [];
     let isDark = document.documentElement.classList.contains("dark");
     let animationFrame = 0;
     let running = true;
@@ -86,18 +100,31 @@ export function ParticleBackground() {
     const nearestIdx = new Int32Array(CURSOR_NEAREST_COUNT);
     const nearestDistSq = new Float64Array(CURSOR_NEAREST_COUNT);
 
-    function makeParticles(w: number, h: number): Particle[] {
-      const count = particleCountFor(w, h);
-      return Array.from({ length: count }, () => ({
+    let lastTime = 0;
+
+    function makeParticle(w: number, h: number): Particle {
+      return {
         x: Math.random() * w,
         y: Math.random() * h,
-        baseVx: (Math.random() - 0.5) * 0.24,
-        baseVy: (Math.random() - 0.5) * 0.24,
+        heading: Math.random() * Math.PI * 2,
+        speed: MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED),
+        // One full left-right-left turning cycle every ~15–40 s.
+        turnFreq: 0.00016 + Math.random() * 0.00026,
+        turnPhase: Math.random() * Math.PI * 2,
         impulseVx: 0,
         impulseVy: 0,
         radius: 1 + Math.random() * 1.6,
         phase: Math.random() * Math.PI * 2,
-      }));
+      };
+    }
+
+    // Keeps the dots that exist and only adds or removes the difference, so a
+    // resize (on phones: the address bar sliding in and out while scrolling)
+    // never makes the whole network jump to new random positions.
+    function fitParticles(w: number, h: number) {
+      const count = particleCountFor(w, h);
+      if (particles.length > count) particles.length = count;
+      while (particles.length < count) particles.push(makeParticle(w, h));
     }
 
     function resize() {
@@ -124,7 +151,10 @@ export function ParticleBackground() {
       canvas.width = width * dpr;
       canvas.height = height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      particles = makeParticles(width, height);
+      fitParticles(width, height);
+      // Setting canvas.width clears it; repaint at once so a static
+      // (reduced-motion) frame doesn't stay blank after a resize.
+      if (!running) drawFrame(performance.now());
     }
 
     function drawFrame(time: number) {
@@ -170,8 +200,10 @@ export function ParticleBackground() {
       for (let b = 0; b < ALPHA_BUCKETS; b++) {
         const segments = buckets[b];
         if (segments.length === 0) continue;
-        // Bucket midpoint keeps the fade visually centred on the true value.
-        const alpha = (lineAlphaMax * (b + 0.5)) / ALPHA_BUCKETS;
+        // Bucket midpoint, eased (squared): a line fades in from nothing as two
+        // dots approach instead of appearing at a visible opacity.
+        const c = (b + 0.5) / ALPHA_BUCKETS;
+        const alpha = lineAlphaMax * c * c;
         ctx.strokeStyle = `rgba(${DOT_RGB}, ${alpha})`;
         ctx.beginPath();
         for (let s = 0; s < segments.length; s += 4) {
@@ -272,6 +304,12 @@ export function ParticleBackground() {
     function step(time: number) {
       if (!running) return;
 
+      const dt = lastTime ? Math.min(time - lastTime, MAX_FRAME_MS) : 1000 / 60;
+      lastTime = time;
+      // Impulses were tuned per 60 Hz frame; this keeps them the same in real time.
+      const frames = dt / (1000 / 60);
+      const drag = Math.pow(0.95, frames);
+
       for (const p of particles) {
         // Gentle repulsion from the cursor — particles part ways as you move
         // through them, then drift back to their normal wander. This only
@@ -285,22 +323,24 @@ export function ParticleBackground() {
           const dist = Math.hypot(dx, dy);
           if (dist < CURSOR_REPEL_DISTANCE && dist > 0.01) {
             const force = (1 - dist / CURSOR_REPEL_DISTANCE) * 0.6;
-            p.impulseVx += (dx / dist) * force * 0.05;
-            p.impulseVy += (dy / dist) * force * 0.05;
+            p.impulseVx += (dx / dist) * force * 0.05 * frames;
+            p.impulseVy += (dy / dist) * force * 0.05 * frames;
           }
         }
 
-        p.x += p.baseVx + p.impulseVx;
-        p.y += p.baseVy + p.impulseVy;
-        // Drag on the impulse only, so a cursor push fades back to the
-        // particle's normal constant drift instead of accumulating forever.
-        p.impulseVx *= 0.95;
-        p.impulseVy *= 0.95;
+        p.heading += Math.sin(time * p.turnFreq + p.turnPhase) * TURN_RATE * dt;
+        const distance = (p.speed * dt) / 1000;
+        p.x += Math.cos(p.heading) * distance + p.impulseVx * frames;
+        p.y += Math.sin(p.heading) * distance + p.impulseVy * frames;
+        // Drag on the impulse only, so a cursor push eases back into the
+        // particle's normal drift instead of accumulating forever.
+        p.impulseVx *= drag;
+        p.impulseVy *= drag;
 
-        if (p.x < -20) p.x = width + 20;
-        if (p.x > width + 20) p.x = -20;
-        if (p.y < -20) p.y = height + 20;
-        if (p.y > height + 20) p.y = -20;
+        if (p.x < -30) p.x = width + 30;
+        if (p.x > width + 30) p.x = -30;
+        if (p.y < -30) p.y = height + 30;
+        if (p.y > height + 30) p.y = -30;
       }
 
       drawFrame(time);
@@ -328,6 +368,7 @@ export function ParticleBackground() {
         // — which looks exactly like the stutter this component is meant to
         // avoid.
         running = true;
+        lastTime = 0;
         animationFrame = requestAnimationFrame(step);
       }
     }

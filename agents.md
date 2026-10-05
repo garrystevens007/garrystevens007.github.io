@@ -26,7 +26,10 @@ site without roles; all of that was removed. Do not bring it back.
 
 [components/site/ParticleBackground.tsx](components/site/ParticleBackground.tsx): never set `ctx.shadowBlur` inside a
 loop (canvas shadows blur per draw call; it once cost dark mode half its frame rate). Lines are batched into a few
-alpha buckets, one `stroke()` each. The canvas's CSS size and backing size are set separately, or the cursor lands
+alpha buckets (16, eased so lines fade in from nothing), one `stroke()` each. Motion is in real time (px per
+second, frame time clamped to 50 ms), never per frame, or it runs 2–4× faster on 120/144/240 Hz screens and lurches
+when a frame drops; each dot's heading wanders on a slow sine so paths curve gently instead of running on rails.
+A resize keeps the existing dots (phones resize on every scroll as the address bar moves). The canvas's CSS size and backing size are set separately, or the cursor lands
 off its dot at fractional DPR. Reduced motion renders one static frame.
 
 # Content Architecture
