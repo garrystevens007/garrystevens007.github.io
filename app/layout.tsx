@@ -20,7 +20,7 @@ const description = `${profile.name}, ${profile.title.toLowerCase()} in ${profil
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://garrystevens007.github.io"),
-  title: { default: `${profile.name}, ${profile.title}`, template: `%s · ${profile.name}` },
+  title: { default: profile.name, template: `%s · ${profile.name}` },
   description,
   openGraph: { title: `${profile.name}, ${profile.title}`, description, type: "website" },
 };
