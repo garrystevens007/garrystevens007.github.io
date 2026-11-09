@@ -33,11 +33,11 @@ function Box({ x, y, w, h, title, lines = [], accent = false }: {
   );
 }
 
-function DompiDiagram() {
+function MomoniDiagram() {
   return (
-    <svg viewBox="0 0 880 240" role="img" aria-labelledby="dompi-diagram-title" className="block h-auto w-full min-w-[640px]">
-      <title id="dompi-diagram-title">
-        Dompi architecture: the encrypted app on the user&apos;s laptop, a relay in the cloud that cannot read backups,
+    <svg viewBox="0 0 880 240" role="img" aria-labelledby="momoni-diagram-title" className="block h-auto w-full min-w-[640px]">
+      <title id="momoni-diagram-title">
+        Momoni architecture: the encrypted app on the user&apos;s laptop, a relay in the cloud that cannot read backups,
         and the channels that feed it.
       </title>
       <Box
@@ -49,7 +49,7 @@ function DompiDiagram() {
         lines={["Tauri shell · React UI", "Rust core: parsing, budgets, plans", "Encrypted SQLite, keys in OS keystore", "All financial history stays here"]}
       />
       <Box x={350} y={65} w={210} h={110} title="Cloudflare relay" lines={["Inbox for new entries", "Stores backups it cannot read"]} accent />
-      <Box x={590} y={20} w={280} h={56} title="Telegram bot · “coffee 25k”" />
+      <Box x={590} y={20} w={280} h={56} title="Telegram bot (Momo) · “coffee 25k”" />
       <Box x={590} y={92} w={280} h={56} title="iPhone shortcut · QRIS receipt" />
       <Box x={590} y={164} w={280} h={56} title="Phone app · in development" />
       <g className="stroke-ink" strokeWidth={1.4} fill="none">
@@ -60,9 +60,9 @@ function DompiDiagram() {
   );
 }
 
-export function CaseDiagram({ name }: { name: "dompi" }) {
+export function CaseDiagram({ name }: { name: "momoni" }) {
   switch (name) {
-    case "dompi":
-      return <DompiDiagram />;
+    case "momoni":
+      return <MomoniDiagram />;
   }
 }
