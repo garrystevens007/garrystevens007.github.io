@@ -10,27 +10,23 @@ site without roles; all of that was removed. Do not bring it back.
 
 # Design
 
-- **Editorial consulting look**: ivory paper, navy ink, one terracotta accent, generous white space, serif headings
-  (Fraunces) over a sans body (Inter), large figures, thin rules between sections. Colours are tokens in
+- **"Quiet precision" (rework of 2026-11-10)**: Apple-like typography, whitespace and rhythm for an engineer's
+  profile — white/black page, one blue accent (`#0066CC`, `#2997FF` in dark), Inter for everything and JetBrains
+  Mono for metadata, section numbers and code. No serif, no particle background. One quiet call to action (the
+  filled "Get in touch"); every other link is plain accent text with a `›`/`↗`. Section headings end in a full stop
+  ("Selected work.") and carry a mono number (`01 — Work`). Colours are tokens in
   [app/globals.css](app/globals.css) (RGB triplets, light under `:root`, dark under `.dark`) mapped in
-  [tailwind.config.ts](tailwind.config.ts) as `paper`, `surface`, `ink`, `ink-2`, `muted`, `rule`, `accent`,
-  `accent-soft`. Never hard-code a colour in a component when a token fits.
-- **Case studies** follow Context → Approach → Impact, with a meta row (role, timeline, delivery, status) and,
-  where there is a product, device mockups.
-- **Kept from the old site (owner's choice):** the particle network (now subtle: navy, low density and alpha),
-  the certification cards (image full-bleed under a dark frosted panel), and the dark mode toggle.
+  [tailwind.config.ts](tailwind.config.ts) as `bg`, `alt`, `card`, `ink`, `ink-2`, `muted`, `rule`, `accent`,
+  `on-accent` (plus the full-value `--nav-bg`/`--shadow`). Never hard-code a colour when a token fits; the Momoni
+  brand and product-page cards on the case study are the one exception (they keep their own Momoni colours).
+- **Home page** ([app/page.tsx](app/page.tsx)): Hero (with a macOS-style profile panel and a glance row), Work,
+  Experience (an accordion, one row open at a time), Skills, Credentials, Contact. Sections alternate `bg`/`alt`
+  and read everything from `content/*.json`. `#cases` stays a valid alias anchor of `#work`.
+- **Case studies** follow Context → Approach → Impact (Momoni adds Design, brand and a product-page card), with a
+  meta row (role, timeline, delivery, status) and, where there is a product, device mockups.
 - **Dark mode** applies only when the visitor switches it on (stored in `localStorage.theme`); it never follows the
-  OS setting alone. The inline script in `app/layout.tsx` sets the class before the first paint.
-
-## Canvas performance rules (learned the hard way, don't regress these)
-
-[components/site/ParticleBackground.tsx](components/site/ParticleBackground.tsx): never set `ctx.shadowBlur` inside a
-loop (canvas shadows blur per draw call; it once cost dark mode half its frame rate). Lines are batched into a few
-alpha buckets (16, eased so lines fade in from nothing), one `stroke()` each. Motion is in real time (px per
-second, frame time clamped to 50 ms), never per frame, or it runs 2–4× faster on 120/144/240 Hz screens and lurches
-when a frame drops; each dot's heading wanders on a slow sine so paths curve gently instead of running on rails.
-A resize keeps the existing dots (phones resize on every scroll as the address bar moves). The canvas's CSS size and backing size are set separately, or the cursor lands
-off its dot at fractional DPR. Reduced motion renders one static frame.
+  OS setting alone. The inline script in `app/layout.tsx` sets the class before the first paint. Motion is limited
+  to tile hover, the accordion, nav backdrop blur and smooth scrolling, all off with `prefers-reduced-motion`.
 
 # Content Architecture
 
@@ -122,17 +118,16 @@ with a static export.
 ```
 /
 ├── app/
-│   ├── layout.tsx            fonts, metadata, theme script, header, footer, particle background
+│   ├── layout.tsx            fonts (Inter + JetBrains Mono), metadata, theme script, header, footer
 │   ├── page.tsx              home: hero, at a glance, case studies, experience, capabilities, credentials, contact
 │   ├── cases/[slug]/page.tsx case study pages (static params from content/cases.json)
 │   ├── not-found.tsx         → out/404.html
 │   ├── globals.css           colour tokens, light and dark
 │   └── icon.svg
 ├── components/
-│   ├── site/                 SiteHeader, SiteFooter, ThemeToggle, ParticleBackground
+│   ├── site/                 SiteHeader, SiteFooter, ThemeToggle
 │   ├── cases/                Devices (laptop and phone frames), TryApp, Diagrams
-│   ├── home/                 Credentials
-│   ├── ui/                   SectionHeader
+│   ├── home/                 Credentials, ExperienceAccordion
 │   └── icons.tsx             GitHub/LinkedIn marks (lucide-react v1 has no brand icons)
 ├── content/                  EDIT HERE (see Content Architecture)
 ├── lib/data.ts               loads and validates content/*.json

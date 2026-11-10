@@ -18,7 +18,7 @@ function Box({ x, y, w, h, title, lines = [], accent = false }: {
         width={w}
         height={h}
         rx={10}
-        className={accent ? "fill-accent-soft stroke-accent" : "fill-paper stroke-rule"}
+        className={accent ? "fill-alt stroke-accent" : "fill-bg stroke-rule"}
         strokeWidth={1.2}
       />
       <text x={x + 18} y={y + 28} className="fill-ink" fontSize={14} fontWeight={600}>

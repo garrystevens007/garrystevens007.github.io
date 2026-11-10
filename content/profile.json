@@ -5,17 +5,23 @@
   "email": "stevens.garrys@gmail.com",
   "availability": "Open to opportunities",
   "summary": "Backend Engineer with hands-on experience building and maintaining enterprise-grade Java applications. Experienced in designing RESTful services, working with relational databases, and improving system reliability in production environments. Strong focus on data integrity, performance optimization, and writing maintainable, testable code. Comfortable working in distributed teams and owning features end-to-end.",
+  "heroLead": "Backend engineer with {years}+ years on enterprise Java: REST services, relational data and production reliability, owned end to end.",
+  "panel": [
+    { "label": "Stack", "value": "Java · Jakarta EE · SQL" },
+    { "label": "Search", "value": "Elasticsearch" },
+    { "label": "Based", "value": "South Jakarta · UTC+7" }
+  ],
   "nationality": "Indonesian",
   "spokenLanguages": ["English", "Indonesian"],
   "areasOfExpertise": [
-    "Enterprise Backend Development",
-    "REST API Design & System Integration",
-    "Application Security & Secure Coding",
-    "Legacy System Modernization",
-    "SQL Query Optimization",
-    "Elasticsearch Indexing & Relevance Tuning",
-    "Code Quality & Static Analysis",
-    "Feature Prioritization & Technical Feasibility Assessment"
+    "Enterprise backend development",
+    "REST API design & system integration",
+    "Application security & secure coding",
+    "Legacy system modernization",
+    "SQL query optimization",
+    "Elasticsearch indexing & relevance tuning",
+    "Code quality & static analysis",
+    "Feature prioritization & feasibility"
   ],
   "resumeUrl": "/resume/Garry-Stevens-Resume.pdf",
   "socials": {

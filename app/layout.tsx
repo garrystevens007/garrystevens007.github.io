@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
-import { ParticleBackground } from "@/components/site/ParticleBackground";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { profile } from "@/lib/data";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-
-// The serif carries the editorial voice: headings and large figures only.
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-  weight: ["400", "500", "600"],
-});
+// "Quiet precision": Inter for everything, JetBrains Mono for metadata, section numbers and code. No serif.
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 const description = `${profile.name}, ${profile.title.toLowerCase()} in ${profile.location}. Case studies in secure enterprise systems, product delivery and teaching.`;
 
@@ -37,12 +30,16 @@ const themeInitScript = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="font-sans antialiased">
-        <ParticleBackground />
         <SiteHeader />
         <main>{children}</main>
         <SiteFooter />

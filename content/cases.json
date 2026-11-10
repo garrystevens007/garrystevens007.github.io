@@ -13,9 +13,9 @@
     "status": "Private project · in active development",
     "tags": ["Rust", "Tauri 2", "React · TypeScript", "Encrypted SQLite", "Cloudflare Workers · D1", "Telegram Bot API", "Java · Spring Boot (v1)", "Claude Design"],
     "stats": [
-      { "value": "~70k", "label": "lines of production code across Rust, TypeScript and Java" },
-      { "value": "~890", "label": "automated tests guarding parsing, money maths and sync" },
-      { "value": "23×", "label": "faster cold start after re-platforming (6.9 s → 0.3 s)" },
+      { "value": "~70k", "label": "lines of production code across Rust, TypeScript and Java", "short": "lines of production code" },
+      { "value": "~890", "label": "automated tests guarding parsing, money maths and sync", "short": "automated tests" },
+      { "value": "23×", "label": "faster cold start after re-platforming (6.9 s → 0.3 s)", "short": "faster cold start" },
       { "value": "100%", "label": "of the financial history kept on the device; cloud backups are encrypted with a key only the user holds" }
     ],
     "context": [
@@ -104,6 +104,14 @@
     "organisation": "Samsung Research Indonesia",
     "year": "2022 – 2023",
     "summary": "Designed and built an internal web platform supporting AI training workflows, with about ten REST endpoints and tuned Elasticsearch relevance.",
+    "tileVisual": {
+      "type": "code",
+      "lines": [
+        { "method": "GET", "path": "/datasets?q=…", "note": "→ Elasticsearch" },
+        { "method": "POST", "path": "/training-jobs", "note": "→ MySQL" },
+        { "note": "~10 endpoints · MVC · DTO layer · Docker" }
+      ]
+    },
     "role": "Software engineer",
     "timeline": "Samsung Research Indonesia, Feb 2022 – Apr 2023",
     "tags": ["Java", "MVC", "REST APIs", "Elasticsearch", "Docker", "MySQL", "Maven"],
@@ -123,6 +131,8 @@
   {
     "slug": "java-upskilling",
     "title": "Teaching Java to 500+ students in a national upskilling programme",
+    "tileTitle": "Teaching Java in a national upskilling programme",
+    "tileVisual": { "type": "figure", "value": "500+", "label": "students trained in Java" },
     "headline": "Turning beginners into job-ready programmers through structured, hands-on curriculum",
     "organisation": "Course-Net Indonesia",
     "year": "2019 – 2022",
