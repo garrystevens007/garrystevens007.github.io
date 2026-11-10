@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="grid gap-4 border-t border-rule py-10 md:grid-cols-[220px_1fr] md:gap-10">
-      <h2 className="font-serif text-2xl font-normal text-ink">{title}</h2>
+      <h2 className="text-2xl font-semibold tracking-[-0.02em] text-ink">{title}</h2>
       <div>{children}</div>
     </section>
   );
@@ -142,7 +142,7 @@ function ProductPageCard({ page }: { page: ProductPage }) {
     >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#B5531A]">Product page</p>
-        <h2 className="mt-3 font-serif text-[32px] font-normal leading-[1.1]">{page.title}</h2>
+        <h2 className="mt-3 text-[32px] font-semibold leading-[1.1] tracking-[-0.02em]">{page.title}</h2>
         <p className="mt-3 text-[#5E534C]">{page.body}</p>
         <span className="mt-6 inline-flex min-h-11 items-center rounded-full bg-[#F2762E] px-5 font-bold text-[#1F1A17]">
           {page.cta} →
@@ -186,15 +186,15 @@ export default async function CasePage({ params }: Props) {
       </Link>
 
       <header className="pb-6 pt-10 sm:pt-14">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-accent">
+        <p className="font-mono text-[13px] text-muted">
           Case study {String(index + 1).padStart(2, "0")} · {study.organisation} · {study.year}
         </p>
-        <h1 className="mt-4 max-w-[20ch] font-serif text-4xl font-normal leading-[1.08] text-ink sm:text-6xl">
+        <h1 className="mt-4 max-w-[20ch] text-4xl font-semibold leading-[1.08] tracking-[-0.03em] text-ink sm:text-6xl">
           {study.title}
         </h1>
         <p className="mt-5 max-w-[62ch] text-lg text-ink-2 sm:text-xl">{study.headline}</p>
         {study.formerly && (
-          <p className="mt-[18px] inline-flex items-center gap-2 rounded-full border border-rule bg-surface py-1.5 pl-1.5 pr-3 text-[13px] text-ink-2">
+          <p className="mt-[18px] inline-flex items-center gap-2 rounded-full border border-rule bg-card py-1.5 pl-1.5 pr-3 text-[13px] text-ink-2">
             <Image
               src="/images/cases/momoni/brand/momoni-mark.svg"
               alt=""
@@ -224,7 +224,7 @@ export default async function CasePage({ params }: Props) {
               key={s.label}
               className={`border-rule py-6 pr-5 ${i % 2 === 1 ? "border-l pl-5" : ""} ${i > 0 ? "lg:border-l lg:pl-5" : ""}`}
             >
-              <div className="font-serif text-4xl leading-none text-ink sm:text-5xl">{s.value}</div>
+              <div className="text-4xl font-semibold leading-none tracking-[-0.03em] text-ink sm:text-5xl">{s.value}</div>
               <div className="mt-2 text-sm text-muted">{s.label}</div>
             </div>
           ))}
@@ -272,7 +272,7 @@ export default async function CasePage({ params }: Props) {
 
       {study.diagram && (
         <Block title="Architecture">
-          <div className="overflow-x-auto rounded-xl border border-rule bg-surface p-5">
+          <div className="overflow-x-auto rounded-xl border border-rule bg-card p-5">
             <CaseDiagram name={study.diagram} />
           </div>
         </Block>
@@ -281,7 +281,7 @@ export default async function CasePage({ params }: Props) {
       <Block title="Toolkit">
         <ul className="flex flex-wrap gap-2">
           {study.tags.map((tag) => (
-            <li key={tag} className="rounded-full border border-rule bg-surface px-3 py-1 text-xs text-ink-2">
+            <li key={tag} className="rounded-full border border-rule bg-card px-3 py-1 text-xs text-ink-2">
               {tag}
             </li>
           ))}
@@ -298,8 +298,8 @@ export default async function CasePage({ params }: Props) {
           className="group mb-16 mt-8 flex items-center justify-between gap-6 border-t border-ink py-8"
         >
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Next case study</p>
-            <p className="mt-2 font-serif text-2xl text-ink group-hover:text-accent">{next.title}</p>
+            <p className="font-mono text-[13px] text-muted">Next case study</p>
+            <p className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-ink group-hover:text-accent">{next.title}</p>
           </div>
           <ArrowRight className="shrink-0 text-ink transition-transform group-hover:translate-x-1" />
         </Link>

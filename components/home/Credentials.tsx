@@ -1,73 +1,95 @@
 import Image from "next/image";
-import { ArrowUpRight, FileText } from "lucide-react";
 import { certifications, education, linkedinCertificationsUrl, type Certification } from "@/lib/data";
 
-// The certificate image full-bleed, with a frosted panel for the text. Kept from the previous design, restyled to
-// the editorial palette. The publication has no image, so it gets a navy panel with the paper's title.
-function CredentialCard({ cert }: { cert: Certification }) {
-  const card = (
-    <div className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-rule bg-surface transition-transform duration-300 hover:-translate-y-1">
-      {cert.image ? (
-        <Image
-          src={cert.image}
-          alt=""
-          aria-hidden="true"
-          fill
-          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-start bg-[#0b1f3a] p-5">
-          <FileText className="text-white/50" size={28} />
-        </div>
-      )}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/65 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 border-t border-white/10 bg-black/35 p-4 backdrop-blur-md">
-        <h3 title={cert.title} className="line-clamp-2 text-sm font-semibold text-white">
-          {cert.title}
-        </h3>
-        <p className="mt-0.5 truncate text-xs text-white/80">{cert.issuer}</p>
-        <div className="mt-1 flex items-center justify-between gap-2 text-[11px] text-white/70">
-          <span>{cert.meta ?? cert.date}</span>
-          {cert.verifyUrl && <ArrowUpRight size={13} />}
-        </div>
-      </div>
-    </div>
+const CARD = "flex flex-col overflow-hidden rounded-[20px] border border-rule bg-card text-ink no-underline transition-colors hover:border-muted";
+
+// doi.org / dl.acm.org links carry the DOI after "/doi/"; show it in the publication card's header.
+function doiFrom(url?: string): string | undefined {
+  if (!url) return undefined;
+  const after = url.split("/doi/")[1] ?? url.split("doi.org/")[1];
+  return after ? `doi:${after}` : undefined;
+}
+
+function Meta({ cert }: { cert: Certification }) {
+  return (
+    <span className="flex flex-col gap-1 p-4">
+      <b className="text-[15px] font-semibold leading-snug">{cert.title}</b>
+      <span className="text-[13px] text-muted">
+        {cert.issuer} · {cert.date}
+      </span>
+      {cert.verifyUrl ? (
+        <span className="text-[13px] text-accent">Verify ↗</span>
+      ) : cert.credentialId ? (
+        <span className="text-[13px] text-muted">ID {cert.credentialId}</span>
+      ) : null}
+    </span>
   );
+}
+
+function CertCard({ cert }: { cert: Certification }) {
+  // The publication has no image: a 4:3 alt block with the DOI at the top and the paper title at the bottom.
+  const body =
+    cert.kind === "publication" ? (
+      <>
+        <span className="flex aspect-[4/3] flex-col justify-between bg-alt p-[18px]">
+          <span className="font-mono text-xs text-muted">{doiFrom(cert.verifyUrl)}</span>
+          <span className="text-[15px] font-semibold leading-snug">{cert.title}</span>
+        </span>
+        <span className="flex flex-col gap-1 p-4">
+          <b className="text-[15px] font-semibold leading-snug">Peer-reviewed publication</b>
+          <span className="text-[13px] text-muted">
+            {cert.issuer} · {cert.date}
+          </span>
+          <span className="text-[13px] text-accent">Read ↗</span>
+        </span>
+      </>
+    ) : (
+      <>
+        <span className="relative block aspect-[4/3] bg-white">
+          {cert.image && (
+            <Image
+              src={cert.image}
+              alt=""
+              fill
+              sizes="(min-width: 820px) 25vw, 50vw"
+              className="object-cover object-top"
+            />
+          )}
+        </span>
+        <Meta cert={cert} />
+      </>
+    );
 
   return cert.verifyUrl ? (
-    <a href={cert.verifyUrl} target="_blank" rel="noreferrer" aria-label={`Verify: ${cert.title}`}>
-      {card}
+    <a href={cert.verifyUrl} target="_blank" rel="noreferrer" className={CARD} aria-label={`${cert.title} — open issuer page`}>
+      {body}
     </a>
   ) : (
-    card
+    <div className={CARD}>{body}</div>
   );
 }
 
 export function Credentials() {
   return (
-    <div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-10">
+      <div className="grid grid-cols-2 gap-4 nav:grid-cols-4">
         {certifications.map((cert) => (
-          <CredentialCard key={cert.id} cert={cert} />
+          <CertCard key={cert.id} cert={cert} />
         ))}
       </div>
-      <div className="mt-8 flex flex-col justify-between gap-6 border-t border-rule pt-8 sm:flex-row sm:items-end">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">Education</p>
-          <p className="mt-2 font-serif text-xl text-ink">{education.degree}</p>
-          <p className="text-sm text-ink-2">
-            {education.school}, {education.location} · {education.period}
-          </p>
-        </div>
-        <a
-          href={linkedinCertificationsUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
-        >
-          All certifications on LinkedIn <ArrowUpRight size={15} />
-        </a>
+      <div className="grid gap-1.5 border-t border-rule pt-5 nav:grid-cols-[240px_minmax(0,1fr)]">
+        <span className="pt-[3px] text-xs uppercase tracking-[0.04em] text-muted">Education</span>
+        <span className="flex flex-wrap justify-between gap-x-6 gap-y-1.5">
+          <span>
+            <b className="font-semibold">{education.degree}</b>{" "}
+            <span className="text-muted">
+              · {education.school}, {education.location} · {education.period}
+            </span>
+          </span>
+          <a href={linkedinCertificationsUrl} target="_blank" rel="noreferrer" className="text-[15px] text-accent">
+            All certifications on LinkedIn ↗
+          </a>
+        </span>
       </div>
     </div>
   );

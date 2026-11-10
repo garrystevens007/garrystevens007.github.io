@@ -19,6 +19,10 @@ interface ProfileData {
   email: string;
   availability: string;
   summary: string;
+  // Short hero standfirst; "{years}" is replaced with the computed years of experience at render time.
+  heroLead: string;
+  // Editable rows in the hero profile panel (Stack, Search, Based).
+  panel: { label: string; value: string }[];
   nationality: string;
   spokenLanguages: string[];
   areasOfExpertise: string[];
@@ -74,6 +78,11 @@ export type CaseImage = { src: string; alt: string; caption?: string; device?: "
 
 export type Point = { title: string; body: string };
 
+// Optional visual shown inside a work tile on the home page.
+export type TileVisual =
+  | { type: "code"; lines: { method?: string; path?: string; note?: string }[] }
+  | { type: "figure"; value: string; label: string };
+
 // A brand case (From Dompi to Momoni): the rename story, the logo lockup, the palette and Momo's expressions.
 export type CaseBrand = {
   title: string;
@@ -113,7 +122,10 @@ export type CaseStudy = {
   delivery?: string;
   status?: string;
   tags: string[];
-  stats?: { value: string; label: string }[];
+  stats?: { value: string; label: string; short?: string }[];
+  // Home-page work tile: a shorter title and an optional visual (code block or big figure).
+  tileTitle?: string;
+  tileVisual?: TileVisual;
   context: string[];
   approach: Point[];
   impact: Point[];
@@ -172,6 +184,13 @@ function assertBrand(brand: CaseBrand | undefined, context: string): CaseBrand |
   return brand;
 }
 
+function assertTileVisual(value: unknown, context: string): TileVisual | undefined {
+  if (value === undefined) return undefined;
+  const type = (value as { type?: string }).type;
+  if (type === "code" || type === "figure") return value as TileVisual;
+  throw new Error(`Unknown tileVisual type "${type}" in ${context}`);
+}
+
 function assertProductPage(page: ProductPage | undefined, context: string): ProductPage | undefined {
   if (!page) return undefined;
   if (!page.href.startsWith("/")) {
@@ -206,6 +225,7 @@ export const cases: CaseStudy[] = casesJson.map((entry) => {
     diagram?: string;
     brand?: CaseBrand;
     productPage?: ProductPage;
+    tileVisual?: unknown;
   };
   const image = (img: RawImage): CaseImage => ({ ...img, device: assertDevice(img.device, where) });
   return {
@@ -220,6 +240,7 @@ export const cases: CaseStudy[] = casesJson.map((entry) => {
     diagram: assertDiagram(raw.diagram, where),
     brand: assertBrand(raw.brand, where),
     productPage: assertProductPage(raw.productPage, where),
+    tileVisual: assertTileVisual(raw.tileVisual, where),
   };
 });
 

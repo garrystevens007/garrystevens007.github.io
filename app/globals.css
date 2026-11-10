@@ -2,68 +2,72 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Colour tokens as RGB triplets (see tailwind.config.ts). Light is the default; the `dark` class on <html> is set
-   only when the visitor chose dark mode (ThemeToggle), never from the OS setting. */
+/* "Quiet precision" tokens (rework 2026). Colours are RGB triplets (see tailwind.config.ts), so dark mode is one
+   class on <html> and Tailwind opacity modifiers (`text-ink/70`) still work. Light is the default; the `dark` class
+   is set only when the visitor chose dark mode (ThemeToggle), never from the OS setting alone.
+   --nav-bg and --shadow are full values (not triplets); they are used directly, not as Tailwind colours. */
 :root {
-  --paper: 250 248 243;
-  --surface: 255 255 255;
-  --ink: 11 31 58;
-  --ink-2: 60 74 94;
-  --muted: 107 118 134;
-  --rule: 227 222 211;
-  --accent: 181 83 42;
-  --accent-soft: 243 228 218;
+  --bg: 255 255 255;
+  --alt: 245 245 247;
+  --card: 255 255 255;
+  --ink: 29 29 31;
+  --ink-2: 66 66 69;
+  --muted: 110 110 115;
+  --rule: 210 210 215;
+  --accent: 0 102 204;
+  --on-accent: 255 255 255;
+  --nav-bg: rgba(255, 255, 255, 0.8);
+  --shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.28);
   color-scheme: light;
 }
 
 .dark {
-  --paper: 12 19 31;
-  --surface: 19 28 43;
-  --ink: 238 241 246;
-  --ink-2: 195 202 214;
-  --muted: 141 151 168;
-  --rule: 37 48 67;
-  --accent: 228 140 98;
-  --accent-soft: 46 31 24;
+  --bg: 0 0 0;
+  --alt: 22 22 23;
+  --card: 28 28 30;
+  --ink: 245 245 247;
+  --ink-2: 210 210 215;
+  --muted: 161 161 166;
+  --rule: 56 56 58;
+  --accent: 41 151 255;
+  --on-accent: 0 0 0;
+  --nav-bg: rgba(0, 0, 0, 0.72);
+  --shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.9);
   color-scheme: dark;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Sticky header is 48 px; keep anchored sections clear of it. */
+  scroll-padding-top: 56px;
 }
 
 body {
-  @apply bg-paper text-ink;
+  @apply bg-bg font-sans text-ink antialiased;
 }
 
 ::selection {
-  @apply bg-accent-soft text-ink;
+  background: rgb(var(--accent) / 0.16);
+  color: rgb(var(--ink));
 }
 
-/* Section entrance, used sparingly on the home page. */
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-rise {
-  animation: rise 0.7s ease-out both;
+/* One visible focus ring everywhere (QA: 2 px accent, 3 px offset). */
+:focus-visible {
+  outline: 2px solid rgb(var(--accent));
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
@@ -71,7 +75,6 @@ body {
   .print-hide {
     display: none !important;
   }
-
   body {
     background: #fff !important;
   }
