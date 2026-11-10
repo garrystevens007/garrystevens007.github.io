@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Momo ngingetin"><title>Momo ngingetin</title>
+<circle cx="100" cy="100" r="100" fill="#FFF1EA"/><g transform="translate(16,14) scale(0.84)"><path d="M38 86 L48 22 Q50 16 56 20 L96 50 Z" fill="#231F1D"/>
+<path d="M162 86 L152 22 Q150 16 144 20 L104 50 Z" fill="#231F1D"/>
+<path d="M52 70 L57 36 L82 54 Z" fill="#F6B49A"/>
+<path d="M148 70 L143 36 L118 54 Z" fill="#F6B49A"/>
+<ellipse cx="100" cy="108" rx="74" ry="64" fill="#231F1D"/>
+<path d="M100 58 C94 78 82 96 66 114 C56 128 60 150 78 162 C88 168 112 168 122 162 C140 150 144 128 134 114 C118 96 106 78 100 58 Z" fill="#FFFFFF"/>
+<path d="M70 132 L32 126 M70 138 L34 144 M130 132 L168 126 M130 138 L166 144" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
+<ellipse cx="80" cy="144" rx="7" ry="4" fill="#F6B49A" opacity="0.75"/><ellipse cx="120" cy="144" rx="7" ry="4" fill="#F6B49A" opacity="0.75"/>
+<path d="M92 123 Q100 119 108 123 Q104 131 100 132 Q96 131 92 123 Z" fill="#E98A8A"/><ellipse cx="62" cy="100" rx="10" ry="12" fill="#F5B83D"/>
+<ellipse cx="62" cy="96" rx="4.5" ry="8" fill="#120F0E"/>
+<circle cx="65" cy="91" r="2.6" fill="#FFFFFF"/>
+<ellipse cx="138" cy="100" rx="10" ry="12" fill="#F5B83D"/>
+<ellipse cx="138" cy="96" rx="4.5" ry="8" fill="#120F0E"/>
+<circle cx="141" cy="91" r="2.6" fill="#FFFFFF"/><path d="M100 132 L100 136" stroke="#231F1D" stroke-width="3" stroke-linecap="round"/><ellipse cx="100" cy="146" rx="8" ry="9" fill="#B5525A" stroke="#231F1D" stroke-width="3"/></g>
+</svg>

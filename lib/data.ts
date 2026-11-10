@@ -72,9 +72,38 @@ export type Certification = {
 
 export type CaseImage = { src: string; alt: string; caption?: string; device?: "desktop" | "phone" };
 
+export type Point = { title: string; body: string };
+
+// A brand case (From Dompi to Momoni): the rename story, the logo lockup, the palette and Momo's expressions.
+export type CaseBrand = {
+  title: string;
+  story: string[];
+  logo: {
+    before?: { src: string; label: string };
+    mark: { src: string; label: string };
+    lockup: { src: string; alt: string; label: string };
+  };
+  // Shares add up to 100; rendered as a stacked bar under the swatches.
+  palette: { name: string; hex: string; share: number }[];
+  paletteNote?: string;
+  expressions: { name: string; when: string; src: string }[];
+  expressionsNote?: string;
+};
+
+// A card linking out to an interactive product page (/momoni/).
+export type ProductPage = {
+  href: string;
+  title: string;
+  body: string;
+  cta: string;
+  image: { src: string; alt: string };
+};
+
 export type CaseStudy = {
   slug: string;
   title: string;
+  // Previous product name, shown as a "Formerly …" pill under the headline.
+  formerly?: string;
   headline: string;
   organisation: string;
   year: string;
@@ -86,12 +115,16 @@ export type CaseStudy = {
   tags: string[];
   stats?: { value: string; label: string }[];
   context: string[];
-  approach: { title: string; body: string }[];
-  impact: { title: string; body: string }[];
+  approach: Point[];
+  impact: Point[];
+  // Optional UX/UI design decisions block, rendered after Approach.
+  design?: { intro?: string; points: Point[] };
+  brand?: CaseBrand;
+  productPage?: ProductPage;
   hero?: { desktop?: CaseImage; phone?: CaseImage };
   gallery?: CaseImage[];
   // A hand-drawn diagram component keyed by name (components/cases/Diagrams.tsx).
-  diagram?: "dompi";
+  diagram?: "momoni";
   // Shows the "I'd like to try this app" block (email or LinkedIn).
   tryApp?: boolean;
   footnote?: string;
@@ -120,9 +153,31 @@ function assertDevice(value: string | undefined, context: string): "desktop" | "
   throw new Error(`Invalid device "${value}" in ${context}: must be "desktop" or "phone"`);
 }
 
-function assertDiagram(value: string | undefined, context: string): "dompi" | undefined {
-  if (value === undefined || value === "dompi") return value;
+function assertDiagram(value: string | undefined, context: string): "momoni" | undefined {
+  if (value === undefined || value === "momoni") return value;
   throw new Error(`Unknown diagram "${value}" in ${context}`);
+}
+
+function assertBrand(brand: CaseBrand | undefined, context: string): CaseBrand | undefined {
+  if (!brand) return undefined;
+  const sum = brand.palette.reduce((total, c) => total + c.share, 0);
+  if (sum !== 100) {
+    throw new Error(`Palette shares in ${context} must sum to 100, got ${sum}`);
+  }
+  for (const colour of brand.palette) {
+    if (!/^#[0-9A-F]{6}$/i.test(colour.hex)) {
+      throw new Error(`Invalid palette hex "${colour.hex}" in ${context}: must be #RRGGBB`);
+    }
+  }
+  return brand;
+}
+
+function assertProductPage(page: ProductPage | undefined, context: string): ProductPage | undefined {
+  if (!page) return undefined;
+  if (!page.href.startsWith("/")) {
+    throw new Error(`productPage.href "${page.href}" in ${context} must start with "/"`);
+  }
+  return page;
 }
 
 export const profile: ProfileData = profileJson;
@@ -149,6 +204,8 @@ export const cases: CaseStudy[] = casesJson.map((entry) => {
     hero?: { desktop?: RawImage; phone?: RawImage };
     gallery?: RawImage[];
     diagram?: string;
+    brand?: CaseBrand;
+    productPage?: ProductPage;
   };
   const image = (img: RawImage): CaseImage => ({ ...img, device: assertDevice(img.device, where) });
   return {
@@ -161,6 +218,8 @@ export const cases: CaseStudy[] = casesJson.map((entry) => {
       : undefined,
     gallery: raw.gallery?.map(image),
     diagram: assertDiagram(raw.diagram, where),
+    brand: assertBrand(raw.brand, where),
+    productPage: assertProductPage(raw.productPage, where),
   };
 });
 

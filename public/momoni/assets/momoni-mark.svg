@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="214" viewBox="0 0 200 214" role="img" aria-label="Momoni"><title>Momoni</title>
+<rect x="44" y="96" width="70" height="44" rx="6" fill="#FFE1CC" transform="rotate(-10 79 118)"/>
+<g transform="translate(0,-16)"><path d="M38 86 L48 22 Q50 16 56 20 L96 50 Z" fill="#231F1D"/>
+<path d="M162 86 L152 22 Q150 16 144 20 L104 50 Z" fill="#231F1D"/>
+<path d="M52 70 L57 36 L82 54 Z" fill="#F6B49A"/>
+<path d="M148 70 L143 36 L118 54 Z" fill="#F6B49A"/>
+<ellipse cx="100" cy="108" rx="74" ry="64" fill="#231F1D"/>
+<path d="M100 58 C94 78 82 96 66 114 C56 128 60 150 78 162 C88 168 112 168 122 162 C140 150 144 128 134 114 C118 96 106 78 100 58 Z" fill="#FFFFFF"/>
+<path d="M70 132 L32 126 M70 138 L34 144 M130 132 L168 126 M130 138 L166 144" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity="0.85"/>
+<path d="M92 123 Q100 119 108 123 Q104 131 100 132 Q96 131 92 123 Z" fill="#E98A8A"/><ellipse cx="62" cy="100" rx="10" ry="12" fill="#F5B83D"/>
+<ellipse cx="63" cy="99" rx="4.5" ry="9" fill="#120F0E"/>
+<circle cx="66" cy="94" r="2.6" fill="#FFFFFF"/>
+<ellipse cx="138" cy="100" rx="10" ry="12" fill="#F5B83D"/>
+<ellipse cx="139" cy="99" rx="4.5" ry="9" fill="#120F0E"/>
+<circle cx="142" cy="94" r="2.6" fill="#FFFFFF"/></g>
+<rect x="18" y="124" width="164" height="88" rx="22" fill="#F2762E"/>
+<rect x="30" y="136" width="140" height="64" rx="14" fill="none" stroke="#FFE1CC" stroke-width="2" stroke-dasharray="4 6" stroke-linecap="round"/>
+<rect x="134" y="152" width="48" height="32" rx="11" fill="#B5531A"/><circle cx="150" cy="168" r="5.5" fill="#FFE1CC"/>
+<ellipse cx="66" cy="126" rx="16" ry="10" fill="#FFFFFF"/>
+<ellipse cx="134" cy="126" rx="16" ry="10" fill="#FFFFFF"/>
+<path d="M60 122 L60 130 M66 121 L66 131 M72 122 L72 130 M128 122 L128 130 M134 121 L134 131 M140 122 L140 130" stroke="#E2D6CE" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

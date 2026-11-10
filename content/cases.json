@@ -1,16 +1,17 @@
 [
   {
-    "slug": "dompi",
-    "title": "Dompi: a privacy-first personal finance product",
+    "slug": "momoni",
+    "title": "Momoni: a privacy-first personal finance product",
+    "formerly": "Dompi",
     "headline": "From blank page to daily use in two weeks, without sending anyone's finances to the cloud",
     "organisation": "Personal product",
     "year": "2026",
     "summary": "A desktop finance app that turns bank statements, receipts and chat messages into a monthly plan, while every rupiah of personal data stays on the user's own computer.",
-    "role": "Product owner, architect, engineer",
-    "timeline": "Sep – Oct 2026",
-    "delivery": "AI-assisted (Claude Code)",
+    "role": "Product owner, UX/UI designer, architect, engineer",
+    "timeline": "Sep – Nov 2026",
+    "delivery": "AI-assisted (Claude Code, Claude Design)",
     "status": "Private project · in active development",
-    "tags": ["Rust", "Tauri 2", "React · TypeScript", "Encrypted SQLite", "Cloudflare Workers · D1", "Telegram Bot API", "Java · Spring Boot (v1)"],
+    "tags": ["Rust", "Tauri 2", "React · TypeScript", "Encrypted SQLite", "Cloudflare Workers · D1", "Telegram Bot API", "Java · Spring Boot (v1)", "Claude Design"],
     "stats": [
       { "value": "~70k", "label": "lines of production code across Rust, TypeScript and Java" },
       { "value": "~890", "label": "automated tests guarding parsing, money maths and sync" },
@@ -27,26 +28,74 @@
       { "title": "From tracking to decisions", "body": "A pay-yourself-first plan splits each payday into fixed costs, emergency fund, retirement and goals, and turns what is left into a daily \"safe to spend\" figure." },
       { "title": "Staged delivery with an AI pair", "body": "I wrote the specification as 20 numbered stages with explicit quality and security gates. AI accelerated implementation; I owned the architecture, the security review and the QA sign-off at every stage." }
     ],
+    "design": {
+      "intro": "I designed every screen before it was built, explored several directions on a design canvas, and wrote each decision down with the reason, so the build could follow it without guessing.",
+      "points": [
+        { "title": "One number first", "body": "The dashboard opens with a single sentence from Momo and the figure people actually ask for: how much is still safe to spend today. Flow and Calendar sit one tab away for when they want the detail." },
+        { "title": "Statement check as a merge", "body": "A BCA statement is compared with what Momoni already recorded, like reviewing a pull request: every difference must be resolved before the month can be saved, so totals always match the bank to the rupiah." },
+        { "title": "Honest budget pace", "body": "Instead of a blanket \"budget safe\", the budget shows what is left per day including today, and a plain status: on track, spending fast, almost out, or over." },
+        { "title": "The app suggests, the user decides", "body": "The payday plan proposes how to split income, but nothing changes until the user applies it, with undo. Momoni never moves money: the user transfers it and ticks it off." },
+        { "title": "Four ways to see categories", "body": "A list, a treemap, columns and a drag-and-drop board replace a single tree, and each person picks the view the page opens with." },
+        { "title": "Wealth in plain language", "body": "Terms like \"capital invested\" and \"unrealised gain\", a reminder when an asset's value is more than 30 days old, and goals funded by allocating amounts from real assets." }
+      ]
+    },
+    "brand": {
+      "title": "From Dompi to Momoni",
+      "story": [
+        "The product started as Dompi, a wallet logo in solid orange. As the app grew from a tracker into something people check every day, it needed a character rather than an icon. Momoni is built around Momo, a tuxedo cat based on a real cat near my house who shows up every morning asking for food. That habit is the idea: Momo shows up every day and reminds you to check on your money.",
+        "The new mark keeps the wallet, so the change reads as an evolution: Momo peeks out of it with white paws on the edge."
+      ],
+      "logo": {
+        "before": { "src": "/images/cases/momoni/brand/dompi-mark.svg", "label": "Dompi" },
+        "mark": { "src": "/images/cases/momoni/brand/momoni-mark.svg", "label": "Momoni mark" },
+        "lockup": { "src": "/images/cases/momoni/brand/momoni-lockup.svg", "alt": "Momoni logo: Momo the cat peeking out of an orange wallet, next to the Momoni wordmark", "label": "Lockup · Plus Jakarta Sans 800" }
+      },
+      "palette": [
+        { "name": "White", "hex": "#FFFFFF", "share": 58 },
+        { "name": "Ink", "hex": "#1F1A17", "share": 20 },
+        { "name": "Peach", "hex": "#FFF1EA", "share": 14 },
+        { "name": "Orange", "hex": "#F2762E", "share": 6 },
+        { "name": "Amber", "hex": "#F5B83D", "share": 2 }
+      ],
+      "paletteNote": "Dompi was orange everywhere. Momoni takes Momo's black and white as the base and keeps orange as a 6% accent. Text on orange is always ink (6.1:1); white on orange fails contrast.",
+      "expressions": [
+        { "name": "Happy", "when": "Greeting, onboarding", "src": "/images/cases/momoni/brand/momo-senang-avatar.svg" },
+        { "name": "Reminding", "when": "Bills, reminders", "src": "/images/cases/momoni/brand/momo-ngingetin-avatar.svg" },
+        { "name": "Proud", "when": "Under budget, goal reached", "src": "/images/cases/momoni/brand/momo-bangga-avatar.svg" },
+        { "name": "Worried", "when": "Close to a limit", "src": "/images/cases/momoni/brand/momo-khawatir-avatar.svg" },
+        { "name": "Sleeping", "when": "Reading a PDF, syncing", "src": "/images/cases/momoni/brand/momo-tidur-avatar.svg" }
+      ],
+      "expressionsNote": "Momo never jokes about a problem with someone's money: errors use the worried face with plain, helpful copy."
+    },
+    "productPage": {
+      "href": "/momoni/",
+      "title": "See Momoni the way a user would",
+      "body": "An interactive product page: try the Telegram bot, drop a statement, split a payday and work out your own safe number. Everything runs in the browser on invented data.",
+      "cta": "Explore Momoni",
+      "image": { "src": "/images/cases/momoni/desktop-dashboard.webp", "alt": "Momoni dashboard" }
+    },
     "impact": [
       { "title": "In daily use", "body": "Running on real personal finances since the first release, with the data carried safely through a full platform rewrite." },
       { "title": "Re-platformed for speed", "body": "Moving from a Java + embedded PostgreSQL desktop to an in-process Rust core in Tauri cut cold start from 6.9 s to 0.3 s, install size from 254 MB to 16 MB, and memory from 833 MB to 439 MB." },
       { "title": "Built to keep growing", "body": "A private project I keep developing, against a staged roadmap that runs from storage and security foundations to importing statements from more banks." }
     ],
     "hero": {
-      "desktop": { "src": "/images/cases/dompi/desktop-dashboard.webp", "alt": "Dompi desktop dashboard: total assets over twelve months, monthly spending and fixed costs" },
-      "phone": { "src": "/images/cases/dompi/phone-home.webp", "alt": "Dompi on a phone: spending this month, budget left and safe to spend today" }
+      "desktop": { "src": "/images/cases/momoni/desktop-dashboard.webp", "alt": "Momoni desktop dashboard: a briefing sentence from Momo, five key figures, daily spending and where the money went" },
+      "phone": { "src": "/images/cases/momoni/phone-record.webp", "alt": "Momoni Telegram bot: typing coffee 25k records the purchase and replies with what is safe to spend today" }
     },
     "gallery": [
-      { "src": "/images/cases/dompi/desktop-networth.webp", "alt": "Net worth page with asset composition and investment performance", "caption": "Net worth: asset composition, and investment performance against the capital put in.", "device": "desktop" },
-      { "src": "/images/cases/dompi/desktop-plan.webp", "alt": "Payday plan page splitting income into bills, savings and spending", "caption": "Payday plan: income split pay-yourself-first, with a savings rate the user can act on.", "device": "desktop" },
-      { "src": "/images/cases/dompi/desktop-goals.webp", "alt": "Goals page with progress towards each savings goal", "caption": "Goals: progress and the monthly amount needed to stay on track.", "device": "desktop" },
-      { "src": "/images/cases/dompi/desktop-budget.webp", "alt": "Budget page by category", "caption": "Budget by category, set from the payday plan.", "device": "desktop" },
-      { "src": "/images/cases/dompi/phone-home.webp", "alt": "Phone home screen with the month's spending", "caption": "Phone companion (in development): the month at a glance.", "device": "phone" },
-      { "src": "/images/cases/dompi/phone-record.webp", "alt": "Recording a transaction on the phone", "caption": "Phone companion (in development): record a purchase in seconds.", "device": "phone" }
+      { "src": "/images/cases/momoni/desktop-flow.webp", "alt": "Flow tab with a Sankey chart from payment method to category", "caption": "Flow: from card and QRIS/cash to every category, this month against the average, and a \"what if I cut back?\" simulation.", "device": "desktop" },
+      { "src": "/images/cases/momoni/desktop-statement-check.webp", "alt": "Statement check comparing Momoni with a BCA statement line by line", "caption": "Statement check: Momoni against the BCA statement, line by line. Every difference is resolved before saving.", "device": "desktop" },
+      { "src": "/images/cases/momoni/desktop-plan.webp", "alt": "Payday plan splitting income into bills, savings and spending", "caption": "Payday plan: bills, then savings, then free spending. The user moves the money and ticks it off.", "device": "desktop" },
+      { "src": "/images/cases/momoni/desktop-transactions.webp", "alt": "Transactions list grouped by date with filters", "caption": "Transactions: card, QRIS, transfers and cash in one list, with saved views and export.", "device": "desktop" },
+      { "src": "/images/cases/momoni/desktop-calendar.webp", "alt": "Calendar of the pay cycle with upcoming bills", "caption": "Calendar: every day of the pay cycle, with the bills still to come.", "device": "desktop" },
+      { "src": "/images/cases/momoni/desktop-dashboard-dark.webp", "alt": "Dashboard in dark mode", "caption": "Dark mode: the same Overview, with Momo on a peach disc so the black cat stays visible.", "device": "desktop" },
+      { "src": "/images/cases/momoni/phone-remind.webp", "alt": "Telegram bot sending a 9 pm reminder and a budget nudge", "caption": "Telegram bot: a 9 pm reminder and a nudge at 80% of a budget.", "device": "phone" },
+      { "src": "/images/cases/momoni/phone-record.webp", "alt": "Logging purchases by chatting with the Telegram bot", "caption": "Only summary figures the user allows ever reach the chat.", "device": "phone" }
     ],
-    "diagram": "dompi",
+    "diagram": "momoni",
     "tryApp": true,
-    "footnote": "Screens show invented demo data. Dompi is a private project; its source code is not public and access to the app is personal."
+    "footnote": "Screens show invented demo data. Momoni (formerly Dompi) is a private project; its source code is not public and access to the app is personal."
   },
   {
     "slug": "ai-training-platform",

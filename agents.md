@@ -50,7 +50,7 @@ content/
 ```
 
 **Every figure on the site must be true.** The old `metrics.json` held invented numbers (bugs fixed, uptime, test
-coverage) and was deleted. Numbers come from the CV or from measured facts (Dompi's from its repo and
+coverage) and was deleted. Numbers come from the CV or from measured facts (Momoni's from its repo and
 `docs/v2/measurements.md`). If you cannot source a number, leave it out.
 
 ## Adding a case study
@@ -61,17 +61,23 @@ coverage) and was deleted. Numbers come from the CV or from measured facts (Domp
 2. Put images in `public/images/cases/<slug>/` as WebP: desktop shots 1920×1200, phone shots 780×1688.
 3. The page `/cases/<slug>/` is generated at build time (`generateStaticParams`); nothing else to register.
 
-## Dompi (case study 01)
+## Momoni, formerly Dompi (case study 01)
 
-The owner's own product (repo `finance-tracker-app`, private). Mockups are real screenshots of the app's UI running
-on **invented English demo data**; the phone screens are the earlier phone companion, captioned "in development".
-`tryApp: true` shows "I'd like to try Dompi": a `mailto:` with a ready message (`tryAppMailto` in `lib/data.ts`) and a
-LinkedIn link; the owner grants access personally. Never link Dompi's source code.
+The owner's own product (repo `finance-tracker-app`, private), renamed and redesigned from **Dompi** to **Momoni** in
+Nov 2026. "Dompi" now appears only where it is deliberate: the "Formerly Dompi" pill, the "From Dompi to Momoni" brand
+story, the footnote "(formerly Dompi)", the old-mark image label, and the `/cases/dompi/` → `/cases/momoni/` redirect
+page. Mockups are app-UI renders on **invented English demo data** ("Dina"). `tryApp: true` shows "I'd like to try
+Momoni": a `mailto:` with a ready message (`tryAppMailto` in `lib/data.ts`) and a LinkedIn link; the owner grants
+access personally. Never link Momoni's source code.
 
-**Present Dompi only as a private project in active development** (owner's decision, 2026-10-05): no Premium tier,
-pricing, licences, admin console, beta programme or "Founder" title anywhere, including inside screenshots (the
-mockup script hides the app's Premium menu). His employment contract restricts outside business activity without
-written consent, so nothing here may read as a commercial venture.
+There is also an unlisted, interactive **product page at `/momoni/`** (`public/momoni/`, self-contained static HTML,
+`noindex`): linked from the case study only, never from the site header or a sitemap. Keep the GitHub Actions deploy
+and `scripts/flatten-rsc.mjs` from touching `out/momoni/`.
+
+**Present Momoni only as a private project in active development** (owner's decision, 2026-10-05): no Premium tier,
+pricing, licences, admin console, beta programme, waitlist or "Founder" title anywhere, including inside screenshots
+and the product page's app screens. His employment contract restricts outside business activity without written
+consent, so nothing here may read as a commercial venture.
 
 # Employer confidentiality
 
